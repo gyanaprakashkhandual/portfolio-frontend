@@ -15,13 +15,18 @@ export function slugToLabel(slug: string): string {
 }
 
 export function flattenSidebarItems(
-  sections: import("../script/doc.sidebar.item").SidebarSection[]
+  sections: import("../script/doc.sidebar.item").SidebarSection[],
 ): { id: string; label: string; slug: string; sectionLabel: string }[] {
-  const result: { id: string; label: string; slug: string; sectionLabel: string }[] = [];
+  const result: {
+    id: string;
+    label: string;
+    slug: string;
+    sectionLabel: string;
+  }[] = [];
 
   function walk(
     items: import("../script/doc.sidebar.item").SidebarSection["children"],
-    sectionLabel: string
+    sectionLabel: string,
   ) {
     for (const item of items) {
       result.push({

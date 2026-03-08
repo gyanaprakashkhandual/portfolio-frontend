@@ -1,4 +1,4 @@
-import reactjsFileMap from "./filemap/react.file.map";
+import reactjsFileMap from "./fileMaps/react.file.map";
 
 export type FileMapEntry = { fileName: string; filePath: string };
 export type FileMap = Record<string, FileMapEntry>;
