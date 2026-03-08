@@ -12,7 +12,7 @@ import {
   Clock,
   BookOpen,
 } from "lucide-react";
-import MarkdownRenderer from "@/app/components/Markdown.render";
+import MarkdownRenderer from "@/app/components/markdown/Markdown.render";
 
 const BASE_URL = "http://localhost:5000/api/blogs";
 
@@ -154,7 +154,7 @@ export default function BlogDetailPage() {
   const readTime = estimateReadTime(blog.content);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950 main-scrollbar">
       {/* Top bar */}
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-between">
         <motion.button

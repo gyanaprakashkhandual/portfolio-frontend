@@ -32,7 +32,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      <body className="hide-scrollbar">
         <ThemeProvider>
           <Navbar />
           {children}

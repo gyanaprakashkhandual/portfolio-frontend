@@ -398,7 +398,7 @@ export default function MusicDetailPage() {
 
   // ── Main ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950 main-scrollbar">
       {/* Scrollable area */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto px-6 py-8">

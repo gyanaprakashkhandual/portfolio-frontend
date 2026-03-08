@@ -300,7 +300,7 @@ export default function BlogSidebar() {
                 onClick={() => router.push(`/blogs/${blog.slug}`)}
                 className={`w-full text-left px-3 py-3 rounded-xl mb-1 group transition-all duration-150 ${
                   isActive
-                    ? "bg-gray-900 dark:bg-white border border-gray-900 dark:border-white shadow-sm"
+                    ? "bg-gray-900 dark:bg-gray-900 border border-gray-900 dark:border-white shadow-sm"
                     : "bg-transparent border border-transparent hover:bg-gray-50 dark:hover:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700"
                 }`}
               >
@@ -308,7 +308,7 @@ export default function BlogSidebar() {
                 <p
                   className={`text-sm font-semibold leading-snug mb-1 transition-colors line-clamp-2 ${
                     isActive
-                      ? "text-white dark:text-gray-900"
+                      ? "text-white dark:text-white"
                       : "text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
                   }`}
                 >
@@ -319,8 +319,8 @@ export default function BlogSidebar() {
                 <p
                   className={`text-xs leading-relaxed line-clamp-2 mb-2 ${
                     isActive
-                      ? "text-gray-300 dark:text-gray-600"
-                      : "text-gray-500 dark:text-gray-500"
+                      ? "text-gray-300 dark:text-gray-300"
+                      : "text-gray-500 dark:text-gray-300"
                   }`}
                 >
                   {blog.description}
@@ -331,7 +331,7 @@ export default function BlogSidebar() {
                   <div
                     className={`flex items-center gap-1 text-[10px] ${
                       isActive
-                        ? "text-gray-300 dark:text-gray-600"
+                        ? "text-gray-300 dark:text-gray-300"
                         : "text-gray-400 dark:text-gray-600"
                     }`}
                   >

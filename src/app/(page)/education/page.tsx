@@ -143,7 +143,7 @@ export default function EducationPage() {
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-56px)] bg-white overflow-hidden dark:bg-gray-950">
+    <div className="main-scrollbar flex-1 flex flex-col h-[calc(100vh-56px)] bg-white overflow-hidden dark:bg-gray-950">
       {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-3xl mx-auto px-6 py-8">
