@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 "use client";
 
 import React, { useState } from "react";
@@ -5,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Hash, ChevronRight, Check } from "lucide-react";
 import { renderInline } from "./Render.inline";
 import { ListItem } from "./types";
+import { JSX } from "react/jsx-dev-runtime";
 
 export function HeadingBlock({ level, text, id }: { level: number; text: string; id: string }) {
   const [hovered, setHovered] = useState(false);

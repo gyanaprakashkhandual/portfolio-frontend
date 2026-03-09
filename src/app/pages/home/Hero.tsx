@@ -148,7 +148,7 @@ export default function Hero() {
                   alt="Gyana Prakash Khandual"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
             </div>
           </motion.div>

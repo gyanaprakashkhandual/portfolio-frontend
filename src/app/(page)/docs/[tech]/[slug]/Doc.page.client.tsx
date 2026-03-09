@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import MarkdownRenderer from "@/app/components/markdown/Markdown.render";
-import Toolbar from "@/app/components/Toolbar";
+
 
 interface DocPageClientProps {
   content: string;
@@ -14,18 +14,11 @@ interface DocPageClientProps {
 }
 
 export default function DocPageClient({ content }: DocPageClientProps) {
-  const [showToolbar, setShowToolbar] = useState(true);
-  const [showLeftSidebar, setShowLeftSidebar] = useState(true);
+  
 
   return (
     <>
-      {showToolbar && (
-        <Toolbar
-          onToggleToolbar={setShowToolbar}
-          onToggleLeftSidebar={setShowLeftSidebar}
-          onToggleOutlineSidebar={() => {}}
-        />
-      )}
+      
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}

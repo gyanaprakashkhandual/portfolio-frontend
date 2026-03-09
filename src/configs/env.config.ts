@@ -10,7 +10,6 @@ const getEnvironmentConfig = () => {
     nodeEnv,
     isDevelopment: nodeEnv === "development",
     isProduction: nodeEnv === "production",
-    isStaging: nodeEnv === "staging",
 
     // API Endpoints
     api: {
@@ -37,6 +36,5 @@ export const {
   api,
   isDevelopment,
   isProduction,
-  isStaging,
   getMusicActivityUrl,
 } = envConfig;

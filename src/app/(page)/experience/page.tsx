@@ -92,8 +92,7 @@ function SkeletonCard() {
         {[80, 100, 70, 90, 60].map((w, i) => (
           <SkeletonPulse
             key={i}
-            className="h-6 rounded-lg"
-            style={{ width: w }}
+            className={`h-6 rounded-lg w-[${w}%]`}
           />
         ))}
       </div>
