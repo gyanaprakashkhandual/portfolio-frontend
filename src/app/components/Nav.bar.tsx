@@ -90,7 +90,7 @@ export default function Navbar() {
               onClick={() => navigate("/")}
               className="flex items-center gap-2 shrink-0 group"
             >
-              <span className="flex items-center justify-center w-8 h-8 text-black transition-colors">
+              <span className="flex items-center justify-center w-8 h-8 text-black dark:text-blue-950 transition-colors">
                 <FaCoffee className="w-8 h-8" strokeWidth={2} />
               </span>
               <span className="text-base font-bold text-neutral-900 dark:text-white tracking-tight">

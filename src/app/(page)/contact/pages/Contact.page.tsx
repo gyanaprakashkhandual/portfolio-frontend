@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -207,10 +208,12 @@ export default function ContactPage() {
               {/* Profile card */}
               <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-12 h-12 rounded-xl bg-gray-900 dark:bg-white border border-gray-900 dark:border-white flex items-center justify-center shrink-0">
-                    <span className="text-sm font-black text-white dark:text-gray-900">
-                      G
-                    </span>
+                  <div className="w-12 h-12 rounded-xl overflow-hidden">
+                    <img
+                      src="https://res.cloudinary.com/dvytvjplt/image/upload/v1765866608/profile_pricture_oemv94.jpg"
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-900 dark:text-white leading-none">

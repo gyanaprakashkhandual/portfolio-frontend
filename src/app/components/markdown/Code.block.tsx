@@ -7,6 +7,15 @@ import { getLangIcon } from "./Lang.icons";
 import { syntaxHighlight } from "./utils";
 import { CodeBlockProps } from "./types";
 
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 export function CodeBlock({ code, language }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const lang = language.toLowerCase().trim();
@@ -28,7 +37,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     }
   }, [code]);
 
-  const lines = code.split("\n");
+  const lines = decodeHtmlEntities(code).split("\n");
 
   return (
     <motion.div
@@ -87,13 +96,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
                 <td className="px-4 py-0 font-mono text-[13px] leading-6 text-[#cdd6f4] whitespace-pre">
                   <span
                     dangerouslySetInnerHTML={{
-                      __html: syntaxHighlight(
-                        line
-                          .replace(/&/g, "&amp;")
-                          .replace(/</g, "&lt;")
-                          .replace(/>/g, "&gt;"),
-                        lang,
-                      ),
+                      __html: syntaxHighlight(line, lang),
                     }}
                   />
                 </td>

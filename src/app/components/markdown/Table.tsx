@@ -43,8 +43,8 @@ export function TableOfContents({ content }: { content: string }) {
   if (items.length === 0) return null;
 
   return (
-    <nav className="hidden xl:block fixed right-8 top-24 w-56 max-h-[70vh] overflow-y-auto">
-      <p className="text-xs font-semibold text-[#9b9a97] dark:text-[#6c7086] uppercase tracking-widest mb-3 mt-6">
+    <nav className="hidden xl:block fixed right-8 top-24 w-56 max-h-[70vh] overflow-y-auto mt-10">
+      <p className="text-xs font-semibold text-[#9b9a97] dark:text-[#6c7086] uppercase tracking-widest mb-3">
         On this page
       </p>
       <ul className="space-y-1">
