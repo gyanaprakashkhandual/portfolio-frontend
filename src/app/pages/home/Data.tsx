@@ -105,14 +105,14 @@ export const extensions = [
     name: "Selenium Cucumber",
     description:
       "Auto-generates step definition code from raw Cucumber BDD. Slashes boilerplate and accelerates test automation workflows inside VS Code.",
-    installs: "6,661+",
+    installs: "7000+",
     color: "from-green-500/10",
   },
   {
     name: "Caffetest Tracker",
     description:
       "Brings bug tracking and reporting directly into VS Code. Seamlessly integrates Caffetest's full power into your development environment.",
-    installs: "224+",
+    installs: "604+",
     color: "from-blue-500/10",
   },
 ];

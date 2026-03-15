@@ -44,7 +44,7 @@ export function TableOfContents({ content }: { content: string }) {
 
   return (
     <nav className="hidden xl:block fixed right-8 top-24 w-56 max-h-[70vh] overflow-y-auto mt-10">
-      <p className="text-xs font-semibold text-[#9b9a97] dark:text-[#6c7086] uppercase tracking-widest mb-3">
+      <p className="text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-widest mb-3">
         On this page
       </p>
       <ul className="space-y-1">
@@ -56,8 +56,8 @@ export function TableOfContents({ content }: { content: string }) {
                 ${item.level === 1 ? "" : item.level === 2 ? "pl-3" : item.level === 3 ? "pl-6" : "pl-9"}
                 ${
                   activeId === item.id
-                    ? "text-[#37352f] dark:text-[#cdd6f4] font-medium"
-                    : "text-[#9b9a97] dark:text-[#6c7086] hover:text-[#5f5e5b] dark:hover:text-[#a6adc8]"
+                    ? "text-stone-800 dark:text-slate-100 font-medium"
+                    : "text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-slate-400"
                 }`}
             >
               {item.text}

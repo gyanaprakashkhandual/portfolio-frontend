@@ -16,7 +16,7 @@ export default function MarkdownRenderer({ content, className = "" }: MarkdownRe
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className={`notion-md max-w-7xl mx-auto px-6 py-10 font-notion text-[#37352f] dark:text-[#cdd6f4] bg-white dark:bg-gray-950 ${className}`}
+        className={`max-w-7xl mx-auto px-6 py-10 text-stone-800 dark:text-slate-100 bg-white dark:bg-slate-950 ${className}`}
         style={{
           fontFamily:
             '"Söhne", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',

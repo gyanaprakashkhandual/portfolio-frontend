@@ -39,7 +39,7 @@ export function getLangIcon(lang: string) {
     xml: <FiGlobe className="text-red-400" size={14} />,
     cpp: <FiCpu className="text-blue-300" size={14} />,
     c: <FiCpu className="text-blue-300" size={14} />,
-    default: <FiTerminal className="text-notion-gray" size={14} />,
+    default: <FiTerminal className="text-slate-500 dark:text-slate-400" size={14} />,
   };
   return map[lang.toLowerCase()] || map.default;
 }

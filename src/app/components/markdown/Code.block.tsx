@@ -44,18 +44,18 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="group my-4 rounded-lg overflow-hidden border border-[#e3e2e0] dark:border-[#2d2d3f] bg-[#1e1e2e] shadow-sm"
+      className="group my-4 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 bg-slate-950 shadow-sm"
     >
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2d2d3f] bg-[#181825]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-700 bg-slate-900/80">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+            <div className="w-3 h-3 rounded-full bg-red-500" />
+            <div className="w-3 h-3 rounded-full bg-yellow-400" />
+            <div className="w-3 h-3 rounded-full bg-green-500" />
           </div>
           <div className="flex items-center gap-1.5 ml-2">
             {getLangIcon(lang)}
-            <span className="text-xs font-medium text-[#6c7086] font-mono tracking-wide uppercase">
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 font-mono tracking-wide uppercase">
               {lang || "plain text"}
             </span>
           </div>
@@ -64,7 +64,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
           onClick={handleCopy}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-[#6c7086] hover:text-[#cdd6f4] hover:bg-[#2d2d3f] transition-all duration-150 font-medium"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-slate-500 dark:text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all duration-150 font-medium"
         >
           <AnimatePresence mode="wait">
             {copied ? (
@@ -89,11 +89,11 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
         <table className="w-full border-collapse text-sm">
           <tbody>
             {lines.map((line, i) => (
-              <tr key={i} className="hover:bg-[#2d2d3f]/40 transition-colors">
-                <td className="select-none text-right text-[#3d3d52] text-xs px-3 py-0 font-mono w-10 min-w-10 border-r border-[#2d2d3f]">
+              <tr key={i} className="hover:bg-slate-800/30">
+                <td className="select-none text-right text-slate-600 text-xs px-3 py-0 font-mono w-10 min-w-10 border-r border-slate-700">
                   {i + 1}
                 </td>
-                <td className="px-4 py-0 font-mono text-[13px] leading-6 text-[#cdd6f4] whitespace-pre">
+                <td className="px-4 py-0 font-mono text-[13px] leading-6 text-slate-200 whitespace-pre">
                   <span
                     dangerouslySetInnerHTML={{
                       __html: syntaxHighlight(line, lang),

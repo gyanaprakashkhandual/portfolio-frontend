@@ -69,7 +69,7 @@ export function parseMarkdown(markdown: string): React.ReactNode[] {
     }
 
     if (/^(\s*[-*_]){3,}\s*$/.test(line)) {
-      nodes.push(<hr key={nk()} className="my-6 border-none h-px bg-[#e3e2e0] dark:bg-[#2d2d3f]" />);
+      nodes.push(<hr key={nk()} className="my-6 border-none h-px bg-gray-300 dark:bg-slate-700" />);
       i++;
       continue;
     }
@@ -162,9 +162,9 @@ export function parseMarkdown(markdown: string): React.ReactNode[] {
       }
       nodes.push(
         <dl key={nk()} className="my-3">
-          <dt className="font-semibold text-[#37352f] dark:text-[#cdd6f4]">{renderInline(term)}</dt>
+          <dt className="font-semibold text-stone-800 dark:text-slate-100">{renderInline(term)}</dt>
           {defs.map((d, di) => (
-            <dd key={di} className="ml-4 text-[#5f5e5b] dark:text-[#a6adc8] before:content-['↳_']">
+            <dd key={di} className="ml-4 text-stone-600 dark:text-slate-400 before:content-['\u2b33_']">
               {renderInline(d)}
             </dd>
           ))}
@@ -201,7 +201,7 @@ export function parseMarkdown(markdown: string): React.ReactNode[] {
       const paraText = paraLines.join("\n").replace(/  \n/g, "\n");
       const segments = paraText.split(/\n/);
       nodes.push(
-        <p key={nk()} className="my-2 leading-7 text-[#37352f] dark:text-[#cdd6f4]">
+        <p key={nk()} className="my-2 leading-7 text-stone-800 dark:text-slate-100">
           {segments.map((seg, si) => (
             <React.Fragment key={si}>
               {renderInline(seg)}
@@ -215,11 +215,11 @@ export function parseMarkdown(markdown: string): React.ReactNode[] {
 
   if (Object.keys(footnotes).length > 0) {
     nodes.push(
-      <div key={nk()} className="mt-8 pt-4 border-t border-[#e3e2e0] dark:border-[#2d2d3f]">
-        <p className="text-xs font-medium text-[#9b9a97] dark:text-[#6c7086] mb-2 uppercase tracking-wider">
+      <div key={nk()} className="mt-8 pt-4 border-t border-gray-300 dark:border-slate-700">
+        <p className="text-xs font-medium text-stone-400 dark:text-stone-500 mb-2 uppercase tracking-wider">
           Footnotes
         </p>
-        <ol className="text-sm text-[#5f5e5b] dark:text-[#a6adc8] space-y-1 list-decimal list-inside">
+        <ol className="text-sm text-stone-600 dark:text-slate-400 space-y-1 list-decimal list-inside">
           {Object.entries(footnotes).map(([ref, text]) => (
             <li key={ref} id={`fn-${ref}`} className="leading-6">
               {renderInline(text)}

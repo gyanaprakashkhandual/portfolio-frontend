@@ -17,7 +17,7 @@ export function HeadingBlock({ level, text, id }: { level: number; text: string;
     3: "text-xl font-semibold mt-5 mb-1",
     4: "text-lg font-semibold mt-4 mb-1",
     5: "text-base font-semibold mt-3 mb-1",
-    6: "text-sm font-semibold mt-3 mb-1 text-[#9b9a97] dark:text-[#6c7086]",
+    6: "text-sm font-semibold mt-3 mb-1 text-stone-400 dark:text-stone-500",
   };
 
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
@@ -25,7 +25,7 @@ export function HeadingBlock({ level, text, id }: { level: number; text: string;
   return (
     <Tag
       id={id}
-      className={`group relative flex items-center gap-2 text-[#37352f] dark:text-[#cdd6f4] ${sizeMap[level]}`}
+      className={`group relative flex items-center gap-2 text-stone-800 dark:text-slate-100 ${sizeMap[level]}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -36,7 +36,7 @@ export function HeadingBlock({ level, text, id }: { level: number; text: string;
             initial={{ opacity: 0, x: -4 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute -left-6 text-[#9b9a97] dark:text-[#6c7086] hover:text-[#37352f] dark:hover:text-[#cdd6f4] transition-colors"
+            className="absolute -left-6 text-stone-400 dark:text-stone-500 hover:text-stone-800 dark:hover:text-slate-100 transition-colors"
           >
             <Hash size={14} />
           </motion.a>
@@ -51,13 +51,13 @@ export function BlockquoteBlock({ content }: { content: string }) {
   const { parseMarkdown } = require("./Parse.markdown");
   const firstLine = content.split("\n")[0];
   const calloutTypes: Record<string, { bg: string; border: string }> = {
-    "💡": { bg: "bg-[#fef9c3] dark:bg-[#3d3000]", border: "border-[#fde68a] dark:border-[#7a6000]" },
-    "⚠️": { bg: "bg-[#fff7ed] dark:bg-[#3d1f00]", border: "border-[#fed7aa] dark:border-[#7a3f00]" },
-    "❌": { bg: "bg-[#fef2f2] dark:bg-[#3d0000]", border: "border-[#fecaca] dark:border-[#7a0000]" },
-    "✅": { bg: "bg-[#f0fdf4] dark:bg-[#003d10]", border: "border-[#bbf7d0] dark:border-[#007a20]" },
-    "📌": { bg: "bg-[#eff6ff] dark:bg-[#00103d]", border: "border-[#bfdbfe] dark:border-[#00207a]" },
-    "🔥": { bg: "bg-[#fff7ed] dark:bg-[#3d1500]", border: "border-[#fdba74] dark:border-[#7a2a00]" },
-    "ℹ️": { bg: "bg-[#eff6ff] dark:bg-[#00103d]", border: "border-[#bfdbfe] dark:border-[#00207a]" },
+    "💡": { bg: "bg-yellow-100 dark:bg-yellow-950", border: "border-yellow-300 dark:border-yellow-900" },
+    "⚠️": { bg: "bg-orange-100 dark:bg-orange-950", border: "border-orange-300 dark:border-orange-900" },
+    "❌": { bg: "bg-red-100 dark:bg-red-950", border: "border-red-300 dark:border-red-900" },
+    "✅": { bg: "bg-green-100 dark:bg-green-950", border: "border-green-300 dark:border-green-900" },
+    "📌": { bg: "bg-blue-100 dark:bg-blue-950", border: "border-blue-300 dark:border-blue-900" },
+    "🔥": { bg: "bg-orange-100 dark:bg-orange-950", border: "border-orange-400 dark:border-orange-900" },
+    "ℹ️": { bg: "bg-blue-100 dark:bg-blue-950", border: "border-blue-300 dark:border-blue-900" },
   };
 
   let callout: { bg: string; border: string } | null = null;
@@ -70,14 +70,14 @@ export function BlockquoteBlock({ content }: { content: string }) {
 
   if (callout) {
     return (
-      <div className={`my-3 px-4 py-3 rounded-lg border ${callout.bg} ${callout.border} text-[#37352f] dark:text-[#cdd6f4]`}>
+      <div className={`my-3 px-4 py-3 rounded-lg border ${callout.bg} ${callout.border} text-stone-800 dark:text-slate-100`}>
         {parseMarkdown(content)}
       </div>
     );
   }
 
   return (
-    <blockquote className="my-3 pl-4 border-l-[3px] border-[#d0cec8] dark:border-[#3d3d52] text-[#5f5e5b] dark:text-[#a6adc8]">
+    <blockquote className="my-3 pl-4 border-l-[3px] border-stone-300 dark:border-slate-700 text-stone-600 dark:text-slate-400">
       {parseMarkdown(content)}
     </blockquote>
   );
@@ -108,12 +108,12 @@ export function TableBlock({ lines }: { lines: string[] }) {
   };
 
   return (
-    <div className="my-4 overflow-x-auto rounded-lg border border-[#e3e2e0] dark:border-[#2d2d3f]">
+    <div className="my-4 overflow-x-auto rounded-lg border border-gray-300 dark:border-slate-700">
       <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-[#f7f6f3] dark:bg-[#181825]">
+          <tr className="bg-gray-100 dark:bg-slate-800">
             {headers.map((h, hi) => (
-              <th key={hi} className={`px-4 py-2.5 font-semibold text-[#37352f] dark:text-[#cdd6f4] border-b border-[#e3e2e0] dark:border-[#2d2d3f] ${alignClass(alignments[hi])}`}>
+              <th key={hi} className={`px-4 py-2.5 font-semibold text-stone-800 dark:text-slate-100 border-b border-gray-300 dark:border-slate-700 ${alignClass(alignments[hi])}`}>
                 {renderInline(h)}
               </th>
             ))}
@@ -121,9 +121,9 @@ export function TableBlock({ lines }: { lines: string[] }) {
         </thead>
         <tbody>
           {rows.map((row, ri) => (
-            <tr key={ri} className={`border-b border-[#f1f0ef] dark:border-[#2d2d3f] ${ri % 2 === 0 ? "bg-white dark:bg-[#1e1e2e]" : "bg-[#fafaf9] dark:bg-[#181825]"} hover:bg-[#f7f6f3] dark:hover:bg-[#2d2d3f] transition-colors`}>
+            <tr key={ri} className={`border-b border-gray-200 dark:border-slate-700 ${ri % 2 === 0 ? "bg-white dark:bg-slate-900/50" : "bg-gray-50 dark:bg-slate-900/80"} hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors`}>
               {headers.map((_, ci) => (
-                <td key={ci} className={`px-4 py-2.5 text-[#5f5e5b] dark:text-[#a6adc8] ${alignClass(alignments[ci])}`}>
+                <td key={ci} className={`px-4 py-2.5 text-stone-600 dark:text-slate-400 ${alignClass(alignments[ci])}`}>
                   {renderInline(row[ci] ?? "")}
                 </td>
               ))}
@@ -191,18 +191,18 @@ export function ListBlock({ lines, ordered }: { lines: string[]; ordered: boolea
           return (
             <li
               key={idx}
-              className={`flex items-start gap-2 leading-7 text-[#37352f] dark:text-[#cdd6f4] ${
-                !ord && !isTask ? "before:content-['•'] before:text-[#9b9a97] dark:before:text-[#6c7086] before:mt-0.5 before:shrink-0" : ""
+              className={`flex items-start gap-2 leading-7 text-stone-800 dark:text-slate-100 ${
+                !ord && !isTask ? "before:content-['•'] before:text-stone-400 dark:before:text-stone-500 before:mt-0.5 before:shrink-0" : ""
               }`}
             >
               {isTask && (
                 <div className={`mt-1.5 w-4 h-4 rounded shrink-0 flex items-center justify-center border-2 transition-colors ${
-                  item.checked ? "bg-[#2383e2] border-[#2383e2]" : "border-[#c7c6c4] dark:border-[#3d3d52] bg-white dark:bg-[#1e1e2e]"
+                  item.checked ? "bg-blue-500 border-blue-500" : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-950"
                 }`}>
                   {item.checked && <Check size={10} className="text-white" strokeWidth={3} />}
                 </div>
               )}
-              <div className={`flex-1 ${item.checked ? "line-through text-[#9b9a97] dark:text-[#6c7086]" : ""}`}>
+              <div className={`flex-1 ${item.checked ? "line-through text-stone-400 dark:text-stone-500" : ""}`}>
                 <span>{renderInline(item.text)}</span>
                 {item.children.length > 0 && renderItems(item.children, ord, depth + 1)}
               </div>
@@ -222,15 +222,15 @@ export function DetailsBlock({ summary, content }: { summary: string; content: s
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="my-3 border border-[#e3e2e0] dark:border-[#2d2d3f] rounded-lg overflow-hidden">
+    <div className="my-3 border border-gray-300 dark:border-slate-700 rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left bg-[#f7f6f3] dark:bg-[#181825] hover:bg-[#f1f0ef] dark:hover:bg-[#2d2d3f] transition-colors"
+        className="w-full flex items-center gap-2 px-4 py-3 text-left bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
       >
         <motion.span animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.15 }}>
-          <ChevronRight size={14} className="text-[#9b9a97] dark:text-[#6c7086]" />
+          <ChevronRight size={14} className="text-stone-400 dark:text-stone-500" />
         </motion.span>
-        <span className="text-sm font-medium text-[#37352f] dark:text-[#cdd6f4]">
+        <span className="text-sm font-medium text-stone-800 dark:text-slate-100">
           {renderInline(summary)}
         </span>
       </button>
@@ -243,7 +243,7 @@ export function DetailsBlock({ summary, content }: { summary: string; content: s
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-4 py-3 text-sm text-[#37352f] dark:text-[#cdd6f4]">
+            <div className="px-4 py-3 text-sm text-stone-800 dark:text-slate-100">
               {parseMarkdown(content)}
             </div>
           </motion.div>
