@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -27,15 +26,21 @@ import {
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../lib/hooks";
 import { fetchAllMusic } from "../lib/features/music/music.slice";
-import { selectAllTracks,  selectMusicLoading,
-  selectMusicError } from "../lib/features/music/music.selector";
+import {
+  selectAllTracks,
+  selectMusicLoading,
+  selectMusicError,
+} from "../lib/features/music/music.selector";
 import {
   fetchLikes,
   toggleLike,
   optimisticToggleLike,
 } from "../lib/features/likes/like.slice";
 import { selectLikesByTrackId } from "../lib/features/likes/like.selector";
-import { fetchComments, addComment } from "../lib/features/comments/comment.slice";
+import {
+  fetchComments,
+  addComment,
+} from "../lib/features/comments/comment.slice";
 import { selectCommentsByTrackId } from "../lib/features/comments/comment.selector";
 
 const ACTIVITY_URL = getMusicActivityUrl;
@@ -107,13 +112,15 @@ function TrackActivityRow({
       e.stopPropagation();
       dispatch(optimisticToggleLike({ trackId: track._id }));
       try {
-        await dispatch(toggleLike({ trackId: track._id, userId: DEMO_USER_ID })).unwrap();
+        await dispatch(
+          toggleLike({ trackId: track._id, userId: DEMO_USER_ID }),
+        ).unwrap();
       } catch {
         // Revert optimistic update on failure
         dispatch(optimisticToggleLike({ trackId: track._id }));
       }
     },
-    [dispatch, track._id]
+    [dispatch, track._id],
   );
 
   return (
@@ -307,9 +314,7 @@ function CommentModal({
 }) {
   const dispatch = useAppDispatch();
   const commentsState = useAppSelector(selectCommentsByTrackId(track._id));
-  const commentsLoading = useAppSelector(
-    (state) => state.comments.loading
-  );
+  const commentsLoading = useAppSelector((state) => state.comments.loading);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -324,7 +329,11 @@ function CommentModal({
     setSubmitting(true);
     try {
       await dispatch(
-        addComment({ trackId: track._id, userId: DEMO_USER_ID, text: text.trim() })
+        addComment({
+          trackId: track._id,
+          userId: DEMO_USER_ID,
+          text: text.trim(),
+        }),
       ).unwrap();
       setText("");
     } catch {}
@@ -513,10 +522,10 @@ export default function MusicList() {
       } catch {}
       setTimeout(
         () => setDownloading((d) => ({ ...d, [track._id]: false })),
-        1500
+        1500,
       );
     },
-    [downloading]
+    [downloading],
   );
 
   // ── Close filter on outside click ───────────────────────────────────────────
@@ -530,7 +539,7 @@ export default function MusicList() {
   }, [filterOpen]);
 
   const genres = Array.from(
-    new Set(tracks.map((t) => t.genre).filter(Boolean))
+    new Set(tracks.map((t) => t.genre).filter(Boolean)),
   );
 
   // ── Filter + sort ────────────────────────────────────────────────────────────

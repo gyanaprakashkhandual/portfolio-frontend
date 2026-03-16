@@ -4,10 +4,10 @@ import Navbar from "@/app/components/Nav.bar";
 import { ThemeProvider } from "@/app/context/Theme.context";
 import StoreProvider from "./context/Store.context";
 
-
 export const metadata: Metadata = {
-  title: "Gyana Prakash Khandual",
-  description: "Portfolio",
+  title: "Portfolio - Gyana Prakash Khandual",
+  description:
+    "Personal portfolio showcasing projects, skills, and experience.",
 };
 
 export default function RootLayout({
@@ -34,14 +34,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="hide-scrollbar">
-          <ThemeProvider>
-            <Navbar />
-            <StoreProvider>
-              {children}
-            </StoreProvider>
-          </ThemeProvider>
-  
+      <body>
+        <ThemeProvider>
+          <Navbar />
+          <StoreProvider>{children}</StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

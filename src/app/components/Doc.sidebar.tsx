@@ -30,18 +30,24 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [viewMode, setViewMode] = useState<ViewMode>(techSlug ? "docs" : "menu");
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    techSlug ? "docs" : "menu",
+  );
   const [activeTech, setActiveTech] = useState<string>(techSlug ?? "");
   const [query, setQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeSections, setActiveSections] = useState<Set<string>>(new Set());
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(),
+  );
   const [expandedNested, setExpandedNested] = useState<Set<string>>(new Set());
   const [totalDocs, setTotalDocs] = useState(0);
 
   const filterRef = useRef<HTMLDivElement>(null);
 
-  const currentSections: SidebarSection[] = activeTech ? (sidebarItems[activeTech] ?? []) : [];
+  const currentSections: SidebarSection[] = activeTech
+    ? (sidebarItems[activeTech] ?? [])
+    : [];
 
   const allSectionLabels = currentSections.map((s) => s.label);
 
@@ -57,7 +63,7 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
       function countChildren(children: SidebarChild[]): number {
         return children.reduce(
           (a, c) => a + 1 + (c.children ? countChildren(c.children) : 0),
-          0
+          0,
         );
       }
       return acc + countChildren(s.children);
@@ -122,7 +128,8 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
 
     return currentSections
       .filter((section) => {
-        if (activeSections.size > 0 && !activeSections.has(section.label)) return false;
+        if (activeSections.size > 0 && !activeSections.has(section.label))
+          return false;
         return true;
       })
       .map((section) => {
@@ -131,8 +138,13 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
           return children
             .map((child) => {
               const matchesSelf = child.label.toLowerCase().includes(q);
-              const filteredChildren = child.children ? filterChildren(child.children) : undefined;
-              if (matchesSelf || (filteredChildren && filteredChildren.length > 0)) {
+              const filteredChildren = child.children
+                ? filterChildren(child.children)
+                : undefined;
+              if (
+                matchesSelf ||
+                (filteredChildren && filteredChildren.length > 0)
+              ) {
                 return { ...child, children: filteredChildren };
               }
               return null;
@@ -151,7 +163,6 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
 
   return (
     <aside className="w-72 shrink-0 flex flex-col h-full bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
-
       {/* ── Header ── */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2 mb-3">
@@ -173,7 +184,10 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
               </>
             ) : (
               <>
-                <BookOpen className="w-4 h-4 text-gray-400 dark:text-gray-500" strokeWidth={1.8} />
+                <BookOpen
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500"
+                  strokeWidth={1.8}
+                />
                 <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                   Documentation
                 </span>
@@ -181,7 +195,11 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
             )}
           </div>
           <button
-            onClick={() => setViewMode(viewMode === "menu" ? (activeTech ? "docs" : "menu") : "menu")}
+            onClick={() =>
+              setViewMode(
+                viewMode === "menu" ? (activeTech ? "docs" : "menu") : "menu",
+              )
+            }
             className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-150"
           >
             <Menu className="w-4 h-4" />
@@ -226,8 +244,8 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
                   filterOpen
                     ? "bg-gray-900 dark:bg-white border-gray-900 dark:border-white text-white dark:text-gray-900"
                     : activeSections.size > 0
-                    ? "bg-gray-100 dark:bg-gray-800 border-gray-900 dark:border-white text-gray-900 dark:text-white"
-                    : "bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                      ? "bg-gray-100 dark:bg-gray-800 border-gray-900 dark:border-white text-gray-900 dark:text-white"
+                      : "bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.8} />
@@ -276,7 +294,12 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
                             <span className="truncate text-left text-[12px] font-medium">
                               {label}
                             </span>
-                            {isActive && <Check className="w-3 h-3 shrink-0" strokeWidth={2.5} />}
+                            {isActive && (
+                              <Check
+                                className="w-3 h-3 shrink-0"
+                                strokeWidth={2.5}
+                              />
+                            )}
                           </button>
                         );
                       })}
@@ -284,7 +307,10 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
                     {activeSections.size > 0 && (
                       <div className="px-3 py-2 border-t border-gray-100 dark:border-gray-800">
                         <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center">
-                          {activeSections.size} section{activeSections.size !== 1 ? "s" : ""} · {filteredSections.length} group{filteredSections.length !== 1 ? "s" : ""}
+                          {activeSections.size} section
+                          {activeSections.size !== 1 ? "s" : ""} ·{" "}
+                          {filteredSections.length} group
+                          {filteredSections.length !== 1 ? "s" : ""}
                         </p>
                       </div>
                     )}
@@ -323,7 +349,6 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
       {/* ── Body ── */}
       <div className="flex-1 overflow-y-auto py-2 px-2 main-scrollbar">
         <AnimatePresence mode="wait">
-
           {/* Tech Menu View */}
           {viewMode === "menu" && (
             <motion.div
@@ -353,18 +378,22 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <span className="text-xl shrink-0">{tech.icon}</span>
                       <div className="min-w-0">
-                        <p className={`text-sm font-semibold truncate mb-0.5 transition-colors ${
-                          activeTech === tech.slug
-                            ? "text-white dark:text-gray-900"
-                            : "text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
-                        }`}>
+                        <p
+                          className={`text-sm font-semibold truncate mb-0.5 transition-colors ${
+                            activeTech === tech.slug
+                              ? "text-white dark:text-gray-900"
+                              : "text-gray-800 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
+                          }`}
+                        >
                           {tech.label}
                         </p>
-                        <p className={`text-xs line-clamp-1 leading-relaxed ${
-                          activeTech === tech.slug
-                            ? "text-gray-300 dark:text-gray-600"
-                            : "text-gray-500 dark:text-gray-500"
-                        }`}>
+                        <p
+                          className={`text-xs line-clamp-1 leading-relaxed ${
+                            activeTech === tech.slug
+                              ? "text-gray-300 dark:text-gray-600"
+                              : "text-gray-500 dark:text-gray-500"
+                          }`}
+                        >
                           {tech.description}
                         </p>
                       </div>
@@ -378,11 +407,13 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
                         }`}
                         strokeWidth={2}
                       />
-                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${
-                        activeTech === tech.slug
-                          ? "bg-white/10 dark:bg-black/10 text-gray-200 dark:text-gray-700"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                      }`}>
+                      <span
+                        className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${
+                          activeTech === tech.slug
+                            ? "bg-white/10 dark:bg-black/10 text-gray-200 dark:text-gray-700"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                        }`}
+                      >
                         {tech.totalDocs} docs
                       </span>
                     </div>
@@ -404,10 +435,17 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
               {filteredSections.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-2 px-4">
                   <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800/60 flex items-center justify-center mb-1">
-                    <Search className="w-4 h-4 text-gray-400 dark:text-gray-600" strokeWidth={1.5} />
+                    <Search
+                      className="w-4 h-4 text-gray-400 dark:text-gray-600"
+                      strokeWidth={1.5}
+                    />
                   </div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">No docs found</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-600 text-center">Try a different search or filter</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    No docs found
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-600 text-center">
+                    Try a different search or filter
+                  </p>
                 </div>
               ) : (
                 filteredSections.map((section, si) => (
@@ -489,7 +527,10 @@ function SectionBlock({
         <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors">
           {section.label}
         </span>
-        <motion.span animate={{ rotate: isOpen ? 90 : 0 }} transition={{ duration: 0.15 }}>
+        <motion.span
+          animate={{ rotate: isOpen ? 90 : 0 }}
+          transition={{ duration: 0.15 }}
+        >
           <ChevronRight className="w-3 h-3 text-gray-300 dark:text-gray-700" />
         </motion.span>
       </button>
@@ -548,11 +589,13 @@ function DocItem({
   const isActive = isDocActive(item.label);
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedNested.has(item.id);
-  const childHasActive = hasChildren && item.children!.some(function check(c): boolean {
-    if (isDocActive(c.label)) return true;
-    if (c.children) return c.children.some(check);
-    return false;
-  });
+  const childHasActive =
+    hasChildren &&
+    item.children!.some(function check(c): boolean {
+      if (isDocActive(c.label)) return true;
+      if (c.children) return c.children.some(check);
+      return false;
+    });
   const shouldExpand = isExpanded || childHasActive || query.length > 0;
 
   const paddingLeft = depth === 0 ? "pl-2.5" : depth === 1 ? "pl-5" : "pl-8";
@@ -588,11 +631,13 @@ function DocItem({
           }}
           className="flex-1 text-left py-2 pr-1"
         >
-          <span className={`text-[12.5px] font-medium transition-colors leading-snug ${
-            isActive
-              ? "text-white dark:text-gray-900"
-              : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
-          }`}>
+          <span
+            className={`text-[12.5px] font-medium transition-colors leading-snug ${
+              isActive
+                ? "text-white dark:text-gray-900"
+                : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
+            }`}
+          >
             {highlight(item.label)}
           </span>
         </button>
@@ -602,10 +647,17 @@ function DocItem({
             onClick={() => onToggleNested(item.id)}
             className="p-1 shrink-0"
           >
-            <motion.span animate={{ rotate: shouldExpand ? 180 : 0 }} transition={{ duration: 0.15 }}>
-              <ChevronDown className={`w-3 h-3 ${
-                isActive ? "text-gray-300 dark:text-gray-600" : "text-gray-400 dark:text-gray-600"
-              }`} />
+            <motion.span
+              animate={{ rotate: shouldExpand ? 180 : 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <ChevronDown
+                className={`w-3 h-3 ${
+                  isActive
+                    ? "text-gray-300 dark:text-gray-600"
+                    : "text-gray-400 dark:text-gray-600"
+                }`}
+              />
             </motion.span>
           </button>
         ) : (

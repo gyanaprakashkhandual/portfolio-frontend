@@ -12,7 +12,7 @@ import {
   Mail,
 } from "lucide-react";
 
-const LAST_UPDATED = "January 15, 2025";
+const LAST_UPDATED = "January 01, 2026";
 
 interface Section {
   icon: React.ReactNode;
@@ -84,7 +84,6 @@ const sections: Section[] = [
 export default function TermsPage() {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-white dark:bg-gray-950">
-
       <div className="flex-1 overflow-auto">
         <div className="max-w-3xl mx-auto px-6 py-8">
           {/* Header card */}

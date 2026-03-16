@@ -36,7 +36,7 @@ A full-stack personal portfolio built with **Next.js 14**, **TypeScript**, **Tai
 
 ```bash
 # Clone the repo
-git clone https://github.com/GyanaprakashKhandual/Portfolio-frontend.git
+git clone https://github.com/GyanaprakashKhandual/portfolio-frontend.git
 cd Portfolio-main
 
 # Install dependencies

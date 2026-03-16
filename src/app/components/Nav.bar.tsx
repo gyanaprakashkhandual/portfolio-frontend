@@ -169,9 +169,7 @@ export default function Navbar() {
                           transition={{ duration: 0.2, ease: "easeOut" }}
                           className="flex"
                         >
-                          
-                            <Moon className="w-4 h-4" strokeWidth={1.8} />
-                         
+                          <Moon className="w-4 h-4" strokeWidth={1.8} />
                         </motion.span>
                       )}
                     </AnimatePresence>
