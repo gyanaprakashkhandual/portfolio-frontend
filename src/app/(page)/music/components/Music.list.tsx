@@ -4,7 +4,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { getMusicActivityUrl } from "@/configs/env.config";
 import {
   Music2,
   Disc3,
@@ -24,26 +23,24 @@ import {
   TrendingUp,
   ChevronDown,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../lib/hooks";
-import { fetchAllMusic } from "../lib/features/music/music.slice";
+import { useAppDispatch, useAppSelector } from "../../../lib/hooks";
+import { fetchAllMusic } from "../../../lib/features/music/music.slice";
 import {
   selectAllTracks,
   selectMusicLoading,
   selectMusicError,
-} from "../lib/features/music/music.selector";
+} from "../../../lib/features/music/music.selector";
 import {
   fetchLikes,
   toggleLike,
   optimisticToggleLike,
-} from "../lib/features/likes/like.slice";
-import { selectLikesByTrackId } from "../lib/features/likes/like.selector";
+} from "../../../lib/features/likes/like.slice";
+import { selectLikesByTrackId } from "../../../lib/features/likes/like.selector";
 import {
   fetchComments,
   addComment,
-} from "../lib/features/comments/comment.slice";
-import { selectCommentsByTrackId } from "../lib/features/comments/comment.selector";
-
-const ACTIVITY_URL = getMusicActivityUrl;
+} from "../../../lib/features/comments/comment.slice";
+import { selectCommentsByTrackId } from "../../../lib/features/comments/comment.selector";
 
 // ── Hardcoded demo userId (replace with real auth) ───────────────────────────
 const DEMO_USER_ID = "507f1f77bcf86cd799439011";
@@ -465,7 +462,6 @@ function CommentModal({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function MusicList() {
-  const router = useRouter();
   const dispatch = useAppDispatch();
 
   const tracks = useAppSelector(selectAllTracks);

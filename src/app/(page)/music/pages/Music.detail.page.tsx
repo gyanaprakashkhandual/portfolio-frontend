@@ -28,7 +28,10 @@ import {
   SmilePlus,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../../lib/hooks";
-import { fetchMusicById, fetchAllMusic } from "../../../lib/features/music/music.slice";
+import {
+  fetchMusicById,
+  fetchAllMusic,
+} from "../../../lib/features/music/music.slice";
 import {
   selectSelectedTrack,
   selectAllTracks,
@@ -122,7 +125,7 @@ export default function MusicDetailPage() {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [activeTab, setActiveTab] = useState<"lyrics" | "info" | "comments">(
-    "lyrics"
+    "lyrics",
   );
 
   const [likeLoading, setLikeLoading] = useState(false);
@@ -161,10 +164,10 @@ export default function MusicDetailPage() {
     audio.volume = volume;
     audio.muted = muted;
     audio.addEventListener("timeupdate", () =>
-      setCurrentTime(audio.currentTime)
+      setCurrentTime(audio.currentTime),
     );
     audio.addEventListener("loadedmetadata", () =>
-      setDuration(audio.duration || track.duration || 0)
+      setDuration(audio.duration || track.duration || 0),
     );
     audio.addEventListener("ended", () => {
       if (repeat) {
@@ -201,13 +204,13 @@ export default function MusicDetailPage() {
       const rect = bar.getBoundingClientRect();
       const ratio = Math.max(
         0,
-        Math.min(1, (e.clientX - rect.left) / rect.width)
+        Math.min(1, (e.clientX - rect.left) / rect.width),
       );
       const t = ratio * (duration || track?.duration || 0);
       setCurrentTime(t);
       if (audioRef.current) audioRef.current.currentTime = t;
     },
-    [duration, track]
+    [duration, track],
   );
 
   const handleNext = useCallback(() => {
@@ -248,7 +251,9 @@ export default function MusicDetailPage() {
     setLikeLoading(true);
     dispatch(optimisticToggleLike({ trackId: id }));
     try {
-      await dispatch(toggleLike({ trackId: id, userId: DEMO_USER_ID })).unwrap();
+      await dispatch(
+        toggleLike({ trackId: id, userId: DEMO_USER_ID }),
+      ).unwrap();
     } catch {
       // Revert optimistic update on failure
       dispatch(optimisticToggleLike({ trackId: id }));
@@ -262,7 +267,11 @@ export default function MusicDetailPage() {
     setSubmitting(true);
     try {
       await dispatch(
-        addComment({ trackId: id, userId: DEMO_USER_ID, text: commentText.trim() })
+        addComment({
+          trackId: id,
+          userId: DEMO_USER_ID,
+          text: commentText.trim(),
+        }),
       ).unwrap();
       setCommentText("");
     } catch {}

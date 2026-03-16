@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { api } from "@/configs/env.config";
 import {
   GraduationCap,
   MapPin,
@@ -11,21 +11,17 @@ import {
   Award,
   AlertTriangle,
 } from "lucide-react";
-
-const BASE_URL = api.education;
+import { useAppDispatch, useAppSelector } from "@/app/lib/hooks";
+import { fetchAllEducation } from "@/app/lib/features/education/education.slice";
+import {
+  selectAllEducation,
+  selectEducationLoading,
+  selectEducationError,
+} from "@/app/lib/features/education/education.selector";
 
 interface Duration {
   start: string | null;
   end: string | null;
-}
-
-interface Education {
-  grade: string;
-  title: string;
-  institution: string;
-  location: string;
-  duration: Duration;
-  stream: string;
 }
 
 const STREAM_COLORS: Record<
@@ -128,27 +124,19 @@ function SkeletonCard() {
 }
 
 export default function EducationPage() {
-  const [data, setData] = useState<Education[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectAllEducation);
+  const loading = useAppSelector(selectEducationLoading);
+  const error = useAppSelector(selectEducationError);
 
   useEffect(() => {
-    fetch(BASE_URL)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((res) => setData(res.data ?? []))
-      .catch((e) => setError(e.message ?? "Failed to load education data."))
-      .finally(() => setLoading(false));
-  }, []);
+    dispatch(fetchAllEducation());
+  }, [dispatch]);
 
   return (
     <div className="main-scrollbar flex-1 flex flex-col h-[calc(100vh-56px)] bg-white overflow-hidden dark:bg-gray-950">
-      {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-3xl mx-auto px-6 py-8">
-          {/* Loading */}
           {loading && (
             <div className="space-y-0">
               {[...Array(4)].map((_, i) => (
@@ -157,7 +145,6 @@ export default function EducationPage() {
             </div>
           )}
 
-          {/* Error */}
           {error && !loading && (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center">
@@ -177,10 +164,8 @@ export default function EducationPage() {
             </div>
           )}
 
-          {/* Timeline */}
           {!loading && !error && data.length > 0 && (
             <div>
-              {/* Summary strip */}
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -239,17 +224,20 @@ export default function EducationPage() {
                 </div>
               </motion.div>
 
-              {/* Timeline entries */}
               <div>
                 {data.map((edu, i) => {
-                  const colors = STREAM_COLORS[edu.stream] ?? DEFAULT_COLOR;
-                  const duration = getDuration(edu.duration);
-                  const years = getYears(edu.duration);
+                  const colors =
+                    STREAM_COLORS[(edu as any).stream] ?? DEFAULT_COLOR;
+                  const duration = getDuration(
+                    (edu as any).duration ?? { start: null, end: null },
+                  );
+                  const years = getYears(
+                    (edu as any).duration ?? { start: null, end: null },
+                  );
                   const isLast = i === data.length - 1;
 
                   return (
                     <div key={i} className="flex gap-5">
-                      {/* Timeline spine */}
                       <div className="flex flex-col items-center pt-5 shrink-0">
                         <motion.div
                           initial={{ scale: 0 }}
@@ -266,7 +254,6 @@ export default function EducationPage() {
                         )}
                       </div>
 
-                      {/* Card */}
                       <motion.div
                         initial={{ opacity: 0, x: 16 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -275,12 +262,11 @@ export default function EducationPage() {
                           duration: 0.35,
                           ease: [0.22, 1, 0.36, 1],
                         }}
-                        className={`flex-1 pb-6 ${isLast ? "" : ""}`}
+                        className="flex-1 pb-6"
                       >
                         <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 hover:border-gray-300 dark:hover:border-gray-700 transition-colors duration-150">
-                          {/* Header row */}
                           <div className="flex items-start gap-3 mb-3.5">
-                            <GradeBadge grade={edu.grade} />
+                            <GradeBadge grade={(edu as any).grade ?? ""} />
                             <div className="flex-1 min-w-0">
                               <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-snug mb-0.5">
                                 {edu.title}
@@ -291,9 +277,7 @@ export default function EducationPage() {
                             </div>
                           </div>
 
-                          {/* Meta pills */}
                           <div className="flex flex-wrap gap-2 mb-3">
-                            {/* Stream badge */}
                             <span
                               className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg border ${colors.bg} ${colors.text} ${colors.border}`}
                             >
@@ -305,16 +289,12 @@ export default function EducationPage() {
                             </span>
                           </div>
 
-                          {/* Bottom info row */}
                           <div className="pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between flex-wrap gap-2">
                             <div className="flex items-center gap-4">
-                              {/* Location */}
                               <div className="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-500">
                                 <MapPin className="w-3 h-3" strokeWidth={1.8} />
-                                <span>{edu.location}</span>
+                                <span>{(edu as any).location ?? ""}</span>
                               </div>
-
-                              {/* Duration */}
                               <div className="flex items-center gap-1.5 text-[11px] text-gray-400 dark:text-gray-500">
                                 <Calendar
                                   className="w-3 h-3"
@@ -338,7 +318,6 @@ export default function EducationPage() {
             </div>
           )}
 
-          {/* Empty */}
           {!loading && !error && data.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <GraduationCap

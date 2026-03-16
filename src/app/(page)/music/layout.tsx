@@ -1,10 +1,5 @@
-import MusicList from "@/app/components/Music.list";
+import MusicList from "@/app/(page)/music/components/Music.list";
 
-
-export const metadata = {
-  title: "Explore my songs",
-  description: "Explore the music library, play tracks, and view details.",
-};
 
 export default function MusicLayout({
   children,

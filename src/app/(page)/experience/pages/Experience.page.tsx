@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "@/configs/env.config";
 import {
   Briefcase,
   MapPin,
@@ -19,8 +18,13 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
-
-const BASE_URL = api.experience;
+import { useAppDispatch, useAppSelector } from "@/app/lib/hooks";
+import { fetchAllExperience } from "@/app/lib/features/experience/experience.slice";
+import {
+  selectAllExperience,
+  selectExperienceLoading,
+  selectExperienceError,
+} from "@/app/lib/features/experience/experience.selector";
 
 interface Achievement {
   title: string;
@@ -34,8 +38,8 @@ interface Duration {
 
 interface Experience {
   slug: string;
-  role: string;
   company: string;
+  role: string;
   location: string;
   duration: Duration;
   summary: string;
@@ -90,10 +94,7 @@ function SkeletonCard() {
       <SkeletonPulse className="h-3 w-4/5" />
       <div className="flex gap-2 flex-wrap pt-1">
         {[80, 100, 70, 90, 60].map((w, i) => (
-          <SkeletonPulse
-            key={i}
-            className={`h-6 rounded-lg w-[${w}%]`}
-          />
+          <SkeletonPulse key={i} className={`h-6 rounded-lg w-[${w}%]`} />
         ))}
       </div>
     </div>
@@ -179,11 +180,9 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
       }}
       className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
     >
-      {/* Card header — always visible */}
       <div className="p-6 pb-5">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-start gap-4">
-            {/* Company avatar */}
             <div className="w-12 h-12 rounded-xl bg-gray-900 dark:bg-white border border-gray-900 dark:border-white flex items-center justify-center shrink-0">
               <span className="text-sm font-bold text-white dark:text-gray-900">
                 {exp.company.slice(0, 2).toUpperCase()}
@@ -219,8 +218,6 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
               </div>
             </div>
           </div>
-
-          {/* Expand toggle */}
           <button
             onClick={() => setExpanded((v) => !v)}
             className="w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shrink-0"
@@ -232,14 +229,11 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
             )}
           </button>
         </div>
-
-        {/* Summary */}
         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           {exp.summary}
         </p>
       </div>
 
-      {/* Expandable body */}
       <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
@@ -251,7 +245,6 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
             className="overflow-hidden"
           >
             <div className="px-6 pb-6 pt-1 space-y-5 border-t border-gray-100 dark:border-gray-800">
-              {/* About */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -272,7 +265,6 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
                 </p>
               </motion.div>
 
-              {/* Highlights */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -303,7 +295,6 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
                 </div>
               </motion.div>
 
-              {/* Achievements */}
               {exp.achievements.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -327,9 +318,7 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
                 </motion.div>
               )}
 
-              {/* Skills + Tech Stack */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* Skills */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -359,7 +348,6 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
                   </div>
                 </motion.div>
 
-                {/* Tech Stack */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -398,31 +386,25 @@ function ExperienceCard({ exp, index }: { exp: Experience; index: number }) {
 }
 
 export default function ExperiencePage() {
-  const [data, setData] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(selectAllExperience) as unknown as Experience[];
+  const loading = useAppSelector(selectExperienceLoading);
+  const error = useAppSelector(selectExperienceError);
 
   useEffect(() => {
-    fetch(BASE_URL)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((res) => setData(res.data ?? []))
-      .catch((e) => setError(e.message ?? "Failed to load experience data."))
-      .finally(() => setLoading(false));
-  }, []);
+    dispatch(fetchAllExperience());
+  }, [dispatch]);
 
-  const totalTech = [...new Set(data.flatMap((e) => e.techStack))].length;
-  const totalSkills = [...new Set(data.flatMap((e) => e.skills))].length;
-  const currentRoles = data.filter((e) => isCurrentRole(e.duration.end)).length;
+  const totalTech = [...new Set(data.flatMap((e) => e.techStack ?? []))].length;
+  const totalSkills = [...new Set(data.flatMap((e) => e.skills ?? []))].length;
+  const currentRoles = data.filter((e) =>
+    isCurrentRole(e.duration?.end ?? ""),
+  ).length;
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-56px)] bg-white overflow-hidden dark:bg-gray-950">
-      {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto px-6 py-8">
-          {/* Loading */}
           {loading && (
             <div className="space-y-5">
               {[...Array(2)].map((_, i) => (
@@ -431,7 +413,6 @@ export default function ExperiencePage() {
             </div>
           )}
 
-          {/* Error */}
           {error && !loading && (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 flex items-center justify-center">
@@ -451,10 +432,8 @@ export default function ExperiencePage() {
             </div>
           )}
 
-          {/* Data */}
           {!loading && !error && data.length > 0 && (
             <div>
-              {/* Summary strip */}
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -501,7 +480,6 @@ export default function ExperiencePage() {
                 ))}
               </motion.div>
 
-              {/* Cards */}
               <div className="space-y-5">
                 {data.map((exp, i) => (
                   <ExperienceCard key={exp.slug} exp={exp} index={i} />
@@ -510,7 +488,6 @@ export default function ExperiencePage() {
             </div>
           )}
 
-          {/* Empty */}
           {!loading && !error && data.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Briefcase
