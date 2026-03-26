@@ -13,6 +13,7 @@ import {
   Tag,
   Layers,
 } from "lucide-react";
+import ProjectsSkeletonLoader from "../components/Loader";
 
 const BASE_URL = api.projects;
 
@@ -45,10 +46,7 @@ export default function ProjectsPage() {
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3">
-        <Loader2 className="w-6 h-6 text-gray-400 dark:text-gray-600 animate-spin" />
-        <p className="text-sm text-gray-400 dark:text-gray-600">
-          Loading projects…
-        </p>
+        <ProjectsSkeletonLoader/>
       </div>
     );
 

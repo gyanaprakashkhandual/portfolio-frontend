@@ -1,307 +1,267 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
-  GitCommitHorizontal,
   Github,
   Star,
-  GitBranch,
-  Clock,
-  ArrowUpRight,
+  GitFork,
+  ExternalLink,
   RefreshCw,
-  ChevronRight,
+  Activity,
   Flame,
   Code2,
-  Activity,
+  ChevronRight,
+  ArrowUpRight,
 } from "lucide-react";
 
+// ── Constants ─────────────────────────────────────────────────
 const USERNAME = "gyanaprakashkhandual";
 
-// ── Types ────────────────────────────────────────────────────────
+const PINNED_REPOS = [
+  {
+    name: "cypress",
+    description:
+      "End-to-end test automation suite built with Cypress — covers UI flows, assertions, and CI integration for modern web applications.",
+    language: "JavaScript",
+    color: "#f7df1e",
+    topics: ["e2e", "testing", "automation", "cypress"],
+  },
+  {
+    name: "selenium",
+    description:
+      "Browser automation framework using Selenium WebDriver — cross-browser test scripts for robust QA pipelines.",
+    language: "Java",
+    color: "#b07219",
+    topics: ["selenium", "webdriver", "automation", "testing"],
+  },
+  {
+    name: "fetch-frontend",
+    description:
+      "Frontend data-fetching patterns — SWR, React Query, and native fetch implementations with loading/error states.",
+    language: "TypeScript",
+    color: "#3178c6",
+    topics: ["react", "fetch", "typescript", "frontend"],
+  },
+  {
+    name: "fetch-backend",
+    description:
+      "REST API backend with Express — structured routes, middleware, error handling, and fetch-based integrations.",
+    language: "JavaScript",
+    color: "#f7df1e",
+    topics: ["node", "express", "api", "backend"],
+  },
+];
+
+// ── Types ──────────────────────────────────────────────────────
 interface ContribDay {
   date: string;
-  contributionCount: number;
+  count: number;
+  level: number;
 }
-interface ContribWeek {
-  contributionDays: ContribDay[];
-}
-interface CommitNode {
-  message: string;
-  committedDate: string;
-  repository: {
-    name: string;
-    url: string;
-  };
+
+interface RepoMeta {
+  stars: number;
+  forks: number;
   url: string;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────
-const CELL_COLORS_LIGHT = [
-  "bg-black/5 border-black/5",
-  "bg-emerald-200 border-emerald-200",
-  "bg-emerald-400 border-emerald-400",
-  "bg-emerald-500 border-emerald-500",
-  "bg-emerald-600 border-emerald-600",
-];
-const CELL_COLORS_DARK = [
-  "dark:bg-white/5 dark:border-white/5",
-  "dark:bg-emerald-900 dark:border-emerald-900",
-  "dark:bg-emerald-700 dark:border-emerald-700",
-  "dark:bg-emerald-500 dark:border-emerald-500",
-  "dark:bg-emerald-400 dark:border-emerald-400",
-];
-
-function getLevel(count: number) {
-  if (count === 0) return 0;
-  if (count <= 2) return 1;
-  if (count <= 5) return 2;
-  if (count <= 9) return 3;
-  return 4;
+// ── Helpers ───────────────────────────────────────────────────
+function getCellClass(level: number): string {
+  const map = [
+    "bg-black/[0.04] border-black/[0.06]",
+    "bg-emerald-100 border-emerald-200",
+    "bg-emerald-300 border-emerald-300",
+    "bg-emerald-500 border-emerald-400",
+    "bg-emerald-700 border-emerald-600",
+  ];
+  return map[Math.min(level, 4)];
 }
 
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+function chunkIntoWeeks(days: ContribDay[]): ContribDay[][] {
+  const weeks: ContribDay[][] = [];
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7));
+  }
+  return weeks;
 }
 
-function truncate(str: string, n: number) {
-  return str.length > n ? str.slice(0, n) + "…" : str;
-}
-
-// ── Month labels from weeks ───────────────────────────────────────
-function getMonthLabels(weeks: ContribWeek[]) {
-  const labels: { label: string; col: number }[] = [];
-  let lastMonth = -1;
+function buildMonthMarkers(weeks: ContribDay[][]): { label: string; col: number }[] {
+  const markers: { label: string; col: number }[] = [];
+  let last = -1;
   weeks.forEach((week, i) => {
-    const d = new Date(week.contributionDays[0]?.date ?? "");
-    const m = d.getMonth();
-    if (m !== lastMonth) {
-      labels.push({
-        label: d.toLocaleString("default", { month: "short" }),
+    if (!week[0]) return;
+    const m = new Date(week[0].date).getMonth();
+    if (m !== last) {
+      markers.push({
+        label: new Date(week[0].date).toLocaleString("default", { month: "short" }),
         col: i,
       });
-      lastMonth = m;
+      last = m;
     }
   });
-  return labels;
+  return markers;
 }
 
-// ── Main Component ───────────────────────────────────────────────
+// ── Component ─────────────────────────────────────────────────
 export default function GitHubSection() {
-  const [weeks, setWeeks] = useState<ContribWeek[]>([]);
-  const [totalContribs, setTotalContribs] = useState(0);
-  const [commits, setCommits] = useState<CommitNode[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [hovered, setHovered] = useState<{ day: ContribDay; x: number; y: number } | null>(null);
+  const [weeks, setWeeks] = useState<ContribDay[][]>([]);
+  const [total, setTotal] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [repoMeta, setRepoMeta] = useState<Record<string, RepoMeta>>({});
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN ?? "";
+  const [error, setError] = useState("");
+  const [tooltip, setTooltip] = useState<{ day: ContribDay; key: string } | null>(null);
 
-  async function fetchData() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-60px" });
+
+  async function fetchAll() {
     setRefreshing(true);
     setError("");
     try {
-      const query = `
-        query($login: String!) {
-          user(login: $login) {
-            contributionsCollection {
-              contributionCalendar {
-                totalContributions
-                weeks {
-                  contributionDays { date contributionCount }
-                }
-              }
-            }
-            repositoriesContributedTo(first: 10, includeUserRepositories: true, orderBy: {field: UPDATED_AT, direction: DESC}) {
-              nodes {
-                defaultBranchRef {
-                  target {
-                    ... on Commit {
-                      history(first: 3) {
-                        nodes {
-                          message
-                          committedDate
-                          url
-                          repository { name url }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+      const year = new Date().getFullYear();
+
+      // Contribution graph — unofficial API, no token needed
+      const r = await fetch(
+        `https://github-contributions-api.jogruber.de/v4/${USERNAME}?y=${year}`
+      );
+      if (!r.ok) throw new Error("Could not load contribution data.");
+      const json = await r.json();
+
+      const days: ContribDay[] = json.contributions ?? [];
+      setWeeks(chunkIntoWeeks(days));
+      setTotal(json.total?.[String(year)] ?? days.reduce((s: number, d: ContribDay) => s + d.count, 0));
+
+      // Streak
+      let s = 0;
+      for (const d of [...days].reverse()) {
+        if (d.count > 0) s++;
+        else break;
+      }
+      setStreak(s);
+
+      // Repo meta — REST API, no token for public repos
+      const settled = await Promise.allSettled(
+        PINNED_REPOS.map((rp) =>
+          fetch(`https://api.github.com/repos/${USERNAME}/${rp.name}`).then((res) =>
+            res.ok ? res.json() : null
+          )
+        )
+      );
+      const meta: Record<string, RepoMeta> = {};
+      settled.forEach((res, i) => {
+        if (res.status === "fulfilled" && res.value) {
+          meta[PINNED_REPOS[i].name] = {
+            stars: res.value.stargazers_count ?? 0,
+            forks: res.value.forks_count ?? 0,
+            url: res.value.html_url,
+          };
         }
-      `;
-      const res = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
-        },
-        body: JSON.stringify({ query, variables: { login: USERNAME } }),
       });
-
-      // Fallback: use unofficial contributions API if no token
-      if (!TOKEN || !res.ok) {
-        const r2 = await fetch(`https://github-contributions-api.jogruber.de/v4/${USERNAME}`);
-        if (!r2.ok) throw new Error("Failed to fetch contributions");
-        const d2 = await r2.json();
-        // Map to weeks format
-        const mapped: ContribWeek[] = [];
-        let wk: ContribDay[] = [];
-        d2.contributions.forEach((c: { date: string; count: number; level: number }, i: number) => {
-          wk.push({ date: c.date, contributionCount: c.count });
-          if (wk.length === 7 || i === d2.contributions.length - 1) {
-            mapped.push({ contributionDays: wk });
-            wk = [];
-          }
-        });
-        setWeeks(mapped);
-        setTotalContribs(d2.total[new Date().getFullYear()]);
-
-        // Fetch recent events for commits (no token needed)
-        const evRes = await fetch(
-          `https://api.github.com/users/${USERNAME}/events/public?per_page=30`
-        );
-        if (evRes.ok) {
-          const events = await evRes.json();
-          const pushEvents = events.filter((e: any) => e.type === "PushEvent");
-          const recent: CommitNode[] = [];
-          for (const ev of pushEvents) {
-            for (const c of ev.payload.commits ?? []) {
-              recent.push({
-                message: c.message,
-                committedDate: ev.created_at,
-                repository: { name: ev.repo.name.split("/")[1], url: `https://github.com/${ev.repo.name}` },
-                url: `https://github.com/${ev.repo.name}/commit/${c.sha}`,
-              });
-              if (recent.length >= 8) break;
-            }
-            if (recent.length >= 8) break;
-          }
-          setCommits(recent);
-        }
-        // calc streak
-        calcStreak(mapped);
-        return;
-      }
-
-      const json = await res.json();
-      const cal = json.data?.user?.contributionsCollection?.contributionCalendar;
-      setWeeks(cal.weeks);
-      setTotalContribs(cal.totalContributions);
-
-      // flatten commits
-      const repoNodes = json.data?.user?.repositoriesContributedTo?.nodes ?? [];
-      const flat: CommitNode[] = [];
-      for (const rn of repoNodes) {
-        const hist = rn?.defaultBranchRef?.target?.history?.nodes ?? [];
-        for (const cm of hist) {
-          flat.push({ ...cm, repository: cm.repository });
-          if (flat.length >= 8) break;
-        }
-        if (flat.length >= 8) break;
-      }
-      flat.sort((a, b) => new Date(b.committedDate).getTime() - new Date(a.committedDate).getTime());
-      setCommits(flat.slice(0, 8));
-      calcStreak(cal.weeks);
+      setRepoMeta(meta);
     } catch (e: any) {
-      setError(e.message ?? "Something went wrong");
+      setError(e.message ?? "Something went wrong.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }
 
-  function calcStreak(wks: ContribWeek[]) {
-    const allDays = wks.flatMap((w) => w.contributionDays).reverse();
-    let s = 0;
-    for (const d of allDays) {
-      if (d.contributionCount > 0) s++;
-      else break;
-    }
-    setStreak(s);
-  }
+  useEffect(() => { fetchAll(); }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const monthLabels = getMonthLabels(weeks);
+  const monthMarkers = buildMonthMarkers(weeks);
 
   return (
-    <section className="relative w-full bg-white dark:bg-black border-b border-black/10 dark:border-white/10 overflow-hidden">
-      {/* Subtle grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-      {/* Ambient glow */}
-      <div className="absolute left-0 top-0 w-64 h-full bg-[linear-gradient(to_right,rgba(16,185,129,0.06),transparent)] pointer-events-none" />
-      <div className="absolute right-0 top-0 w-48 h-full bg-[linear-gradient(to_left,rgba(16,185,129,0.04),transparent)] pointer-events-none" />
+    <section
+      ref={sectionRef}
+      className="relative w-full bg-white border-b border-black/10 overflow-hidden"
+    >
+      {/* Dot-grid texture */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-60"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      />
+      {/* Soft emerald left wash */}
+      <div className="absolute left-0 top-0 w-80 h-full bg-gradient-to-r from-emerald-50/70 to-transparent pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-10 space-y-8">
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-14 space-y-10">
 
-        {/* ── Header ─────────────────────────────────── */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
+        {/* ── HEADER ─────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-start justify-between gap-4 flex-wrap"
+        >
+          <div className="flex items-center gap-3.5">
+            {/* Icon badge */}
             <div className="relative shrink-0">
-              <div className="w-11 h-11 rounded-xl bg-black/5 dark:bg-white/8 border border-black/10 dark:border-white/10 flex items-center justify-center">
-                <Github className="w-5 h-5 text-black/70 dark:text-white/70" />
-              </div>
-              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-black">
+              <motion.div
+                animate={{ scale: [1, 1.07, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                className="w-11 h-11 rounded-xl bg-black/[0.04] border border-black/10 flex items-center justify-center"
+              >
+                <Github className="w-5 h-5 text-black/70" />
+              </motion.div>
+              {/* Live dot */}
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white">
                 <motion.span
-                  animate={{ scale: [1, 2], opacity: [0.6, 0] }}
-                  transition={{ duration: 1.2, repeat: Infinity }}
-                  className="absolute inset-0 rounded-full bg-emerald-500"
+                  animate={{ scale: [1, 2.4], opacity: [0.6, 0] }}
+                  transition={{ duration: 1.4, repeat: Infinity, ease: "easeOut" }}
+                  className="absolute inset-0 rounded-full bg-emerald-400"
                 />
               </span>
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase px-2.5 py-1 rounded-full border border-black/10 dark:border-white/10 bg-black/3 dark:bg-white/3 text-black/50 dark:text-white/50">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.14em] uppercase px-2.5 py-0.5 rounded-full border border-black/[0.09] bg-black/[0.03] text-black/45">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   GitHub Activity
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/8 border border-black/8 dark:border-white/8 text-black/60 dark:text-white/60">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/[0.04] border border-black/[0.07] text-black/40">
                   @{USERNAME}
                 </span>
               </div>
-              <p className="text-sm sm:text-base font-black tracking-tight text-black dark:text-white leading-tight">
-                Contributions & Recent Commits
+              <p className="text-lg sm:text-xl font-black tracking-tight text-black leading-tight">
+                Contributions &amp; Projects
               </p>
             </div>
           </div>
 
+          {/* Right stats row */}
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Stats pills */}
             {[
-              { icon: Activity, label: `${totalContribs.toLocaleString()} this year` },
-              { icon: Flame, label: `${streak}d streak` },
-            ].map(({ icon: Icon, label }) => (
-              <span
+              { icon: Activity, label: loading ? "—" : `${total.toLocaleString()} contributions`, accent: "text-emerald-500" },
+              { icon: Flame, label: loading ? "—" : `${streak}d streak`, accent: "text-orange-400" },
+            ].map(({ icon: Icon, label, accent }) => (
+              <motion.span
                 key={label}
-                className="inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1.5 rounded-lg bg-black/4 dark:bg-white/6 border border-black/8 dark:border-white/8 text-black/60 dark:text-white/60"
+                initial={{ opacity: 0, scale: 0.88 }}
+                animate={inView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ delay: 0.15, duration: 0.4 }}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-black/[0.03] border border-black/[0.07] text-black/55"
               >
-                <Icon className="w-3 h-3" />
+                <Icon className={`w-3 h-3 ${accent}`} />
                 {label}
-              </span>
+              </motion.span>
             ))}
 
-            {/* Refresh */}
             <motion.button
-              onClick={fetchData}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              onClick={fetchAll}
               disabled={refreshing}
-              className="flex items-center justify-center w-8 h-8 rounded-lg border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-40"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-black/10 text-black/35 hover:bg-black/[0.03] transition-colors disabled:opacity-40"
             >
-              <motion.div animate={refreshing ? { rotate: 360 } : {}} transition={{ duration: 0.8, repeat: refreshing ? Infinity : 0, ease: "linear" }}>
+              <motion.div
+                animate={refreshing ? { rotate: 360 } : {}}
+                transition={{ duration: 0.65, repeat: refreshing ? Infinity : 0, ease: "linear" }}
+              >
                 <RefreshCw className="w-3.5 h-3.5" />
               </motion.div>
             </motion.button>
@@ -312,239 +272,267 @@ export default function GitHubSection() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.97 }}
-              className="group hidden sm:flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+              className="group hidden sm:flex items-center gap-1.5 px-4 py-2 bg-black text-white text-[11px] font-semibold rounded-lg hover:bg-black/80 transition-all"
             >
               <Github className="w-3.5 h-3.5" />
-              View Profile
+              Profile
               <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </motion.a>
           </div>
-        </div>
+        </motion.div>
 
-        {/* ── Error ──────────────────────────────────── */}
+        {/* ── ERROR ──────────────────────────────────────── */}
         <AnimatePresence>
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
+            <motion.p
+              initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-red-500/80 bg-red-500/5 border border-red-500/10 rounded-lg px-4 py-3"
+              className="text-xs text-red-500/80 bg-red-50 border border-red-100 rounded-xl px-4 py-3"
             >
-              {error} — showing cached/demo data if available.
-            </motion.div>
+              {error}
+            </motion.p>
           )}
         </AnimatePresence>
 
-        {/* ── Contribution Graph ─────────────────────── */}
-        <div className="rounded-2xl border border-black/8 dark:border-white/8 bg-black/1.5 dark:bg-white/1.5 p-4 sm:p-6 overflow-hidden relative">
-          <div className="flex items-center gap-2 mb-4">
-            <Code2 className="w-4 h-4 text-black/40 dark:text-white/40" />
-            <span className="text-xs font-semibold text-black/50 dark:text-white/50 tracking-wide uppercase">
-              Contribution Graph — Past Year
+        {/* ── CONTRIBUTION GRAPH ─────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.12, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-2xl border border-black/[0.08] bg-white shadow-[0_2px_16px_rgba(0,0,0,0.045)] overflow-hidden"
+        >
+          {/* Card header */}
+          <div className="flex items-center gap-2 px-5 sm:px-6 py-4 border-b border-black/[0.05]">
+            <Code2 className="w-3.5 h-3.5 text-black/30" />
+            <span className="text-[10px] font-semibold tracking-[0.14em] uppercase text-black/35">
+              Contribution Graph — {new Date().getFullYear()}
             </span>
           </div>
 
-          {loading ? (
-            <div className="flex gap-1 flex-wrap">
-              {Array.from({ length: 53 * 7 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-[10px] h-[10px] rounded-sm bg-black/5 dark:bg-white/5 animate-pulse"
-                  style={{ animationDelay: `${(i % 20) * 0.03}s` }}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="relative overflow-x-auto pb-1">
-              {/* Month labels */}
-              <div className="relative mb-1" style={{ height: "16px" }}>
-                <div className="flex gap-[3px]">
+          <div className="px-4 sm:px-6 pt-4 pb-5 overflow-x-auto">
+            {loading ? (
+              /* Skeleton */
+              <div className="flex gap-[3px] flex-wrap">
+                {Array.from({ length: 52 * 7 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ opacity: [0.25, 0.6, 0.25] }}
+                    transition={{ duration: 1.6, repeat: Infinity, delay: (i % 25) * 0.04 }}
+                    className="w-[11px] h-[11px] rounded-[2px] bg-black/[0.05]"
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="min-w-max space-y-[5px]">
+                {/* Month labels */}
+                <div className="flex gap-[3px]" style={{ height: 14 }}>
                   {weeks.map((_, wi) => {
-                    const lbl = monthLabels.find((m) => m.col === wi);
+                    const m = monthMarkers.find((mk) => mk.col === wi);
                     return (
-                      <div key={wi} className="shrink-0" style={{ width: "10px" }}>
-                        {lbl && (
-                          <span className="text-[8px] font-medium text-black/30 dark:text-white/30 whitespace-nowrap">
-                            {lbl.label}
+                      <div key={wi} className="w-[11px] shrink-0 relative">
+                        {m && (
+                          <span className="absolute left-0 top-0 text-[9px] font-semibold text-black/28 whitespace-nowrap leading-none">
+                            {m.label}
                           </span>
                         )}
                       </div>
                     );
                   })}
                 </div>
-              </div>
 
-              {/* Grid */}
-              <div className="flex gap-[3px]">
-                {weeks.map((week, wi) => (
-                  <div key={wi} className="flex flex-col gap-[3px] shrink-0">
-                    {week.contributionDays.map((day, di) => {
-                      const lvl = getLevel(day.contributionCount);
-                      const lightCls = CELL_COLORS_LIGHT[lvl];
-                      const darkCls = CELL_COLORS_DARK[lvl];
-                      return (
-                        <motion.div
-                          key={di}
-                          initial={{ opacity: 0, scale: 0.4 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{
-                            delay: (wi * 7 + di) * 0.0004,
-                            duration: 0.2,
-                            ease: "easeOut",
-                          }}
-                          className={`w-[10px] h-[10px] rounded-sm border cursor-pointer ${lightCls} ${darkCls} hover:ring-1 hover:ring-emerald-500/60 transition-shadow`}
-                          onMouseEnter={(e) => {
-                            const rect = (e.target as HTMLElement).getBoundingClientRect();
-                            setHovered({ day, x: rect.left, y: rect.top });
-                          }}
-                          onMouseLeave={() => setHovered(null)}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
+                {/* Cell grid */}
+                <div className="flex gap-[3px]">
+                  {weeks.map((week, wi) => (
+                    <div key={wi} className="flex flex-col gap-[3px] shrink-0">
+                      {week.map((day, di) => {
+                        const cellKey = `${wi}-${di}`;
+                        return (
+                          <div key={di} className="relative">
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.2 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{
+                                delay: wi * 0.007 + di * 0.0015,
+                                duration: 0.22,
+                                ease: "backOut",
+                              }}
+                              onMouseEnter={() => setTooltip({ day, key: cellKey })}
+                              onMouseLeave={() => setTooltip(null)}
+                              className={`w-[11px] h-[11px] rounded-[2px] border cursor-pointer transition-transform duration-150 hover:scale-[1.4] hover:z-10 ${getCellClass(day.level)}`}
+                            />
+                            {/* Tooltip */}
+                            <AnimatePresence>
+                              {tooltip?.key === cellKey && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 3, scale: 0.88 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.88 }}
+                                  transition={{ duration: 0.14 }}
+                                  className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                                >
+                                  <div className="bg-black text-white text-[9px] font-semibold px-2 py-1 rounded-lg whitespace-nowrap shadow-xl">
+                                    {tooltip.day.count} contrib{tooltip.day.count !== 1 ? "s" : ""}
+                                    <span className="opacity-60 font-normal ml-1">{tooltip.day.date}</span>
+                                  </div>
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-l-[3px] border-r-[3px] border-t-[4px] border-l-transparent border-r-transparent border-t-black" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
 
-              {/* Legend */}
-              <div className="flex items-center gap-1.5 mt-3 justify-end">
-                <span className="text-[9px] text-black/30 dark:text-white/30 font-medium">Less</span>
-                {CELL_COLORS_LIGHT.map((c, i) => (
-                  <div key={i} className={`w-[10px] h-[10px] rounded-sm border ${c} ${CELL_COLORS_DARK[i]}`} />
-                ))}
-                <span className="text-[9px] text-black/30 dark:text-white/30 font-medium">More</span>
+                {/* Legend */}
+                <div className="flex items-center gap-1.5 pt-2 justify-end">
+                  <span className="text-[9px] font-medium text-black/28">Less</span>
+                  {[0, 1, 2, 3, 4].map((l) => (
+                    <div key={l} className={`w-[11px] h-[11px] rounded-[2px] border ${getCellClass(l)}`} />
+                  ))}
+                  <span className="text-[9px] font-medium text-black/28">More</span>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </motion.div>
 
-        {/* ── Recent Commits ─────────────────────────── */}
-        <div className="rounded-2xl border border-black/8 dark:border-white/8 bg-black/1.5 dark:bg-white/1.5 overflow-hidden">
-          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-black/6 dark:border-white/6">
-            <div className="flex items-center gap-2">
-              <GitCommitHorizontal className="w-4 h-4 text-black/40 dark:text-white/40" />
-              <span className="text-xs font-semibold text-black/50 dark:text-white/50 tracking-wide uppercase">
-                Recent Commits
-              </span>
-            </div>
+        {/* ── PINNED REPOS ───────────────────────────────── */}
+        <div className="space-y-3">
+          {/* Section label */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.28, duration: 0.5 }}
+            className="flex items-center justify-between"
+          >
+            <span className="text-[10px] font-semibold tracking-[0.14em] uppercase text-black/38">
+              Featured Repositories
+            </span>
             <motion.a
-              href={`https://github.com/${USERNAME}`}
+              href={`https://github.com/${USERNAME}?tab=repositories`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[10px] font-semibold text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
               whileHover={{ x: 2 }}
+              className="flex items-center gap-1 text-[10px] font-semibold text-black/38 hover:text-black transition-colors"
             >
-              All Activity
-              <ChevronRight className="w-3 h-3" />
+              All repos <ChevronRight className="w-3 h-3" />
             </motion.a>
-          </div>
+          </motion.div>
 
-          {loading ? (
-            <div className="divide-y divide-black/5 dark:divide-white/5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="px-4 sm:px-6 py-4 flex items-start gap-3 animate-pulse">
-                  <div className="w-6 h-6 rounded-md bg-black/5 dark:bg-white/5 shrink-0 mt-0.5" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-black/5 dark:bg-white/5 rounded w-3/4" />
-                    <div className="h-2.5 bg-black/5 dark:bg-white/5 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : commits.length === 0 ? (
-            <p className="text-xs text-black/40 dark:text-white/40 px-6 py-8 text-center">
-              No recent commits found.
-            </p>
-          ) : (
-            <div className="divide-y divide-black/5 dark:divide-white/5">
-              {commits.map((cm, i) => (
+          {/* Repo cards stacked */}
+          <div className="flex flex-col gap-3">
+            {PINNED_REPOS.map((repo, i) => {
+              const meta = repoMeta[repo.name];
+              const href = meta?.url ?? `https://github.com/${USERNAME}/${repo.name}`;
+              return (
                 <motion.a
-                  key={i}
-                  href={cm.url}
+                  key={repo.name}
+                  href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.3 }}
-                  whileHover={{ backgroundColor: "rgba(0,0,0,0.018)" }}
-                  className="group flex items-start gap-3 px-4 sm:px-6 py-4 transition-colors"
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
+                  transition={{
+                    delay: 0.32 + i * 0.09,
+                    duration: 0.55,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  whileHover={{
+                    y: -3,
+                    boxShadow: "0 10px 36px rgba(0,0,0,0.08)",
+                    borderColor: "rgba(0,0,0,0.15)",
+                  }}
+                  className="group block rounded-2xl border border-black/[0.08] bg-white px-5 py-4 transition-all duration-300"
                 >
-                  {/* Icon */}
-                  <div className="shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-black/4 dark:bg-white/5 border border-black/8 dark:border-white/8 flex items-center justify-center group-hover:border-emerald-500/30 group-hover:bg-emerald-500/5 transition-colors">
-                    <GitCommitHorizontal className="w-3.5 h-3.5 text-black/40 dark:text-white/40 group-hover:text-emerald-500 transition-colors" />
-                  </div>
+                  <div className="flex items-start gap-4">
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Name row */}
+                      <div className="flex items-center gap-2.5 mb-2 flex-wrap">
+                        <span className="text-sm font-black tracking-tight text-black group-hover:text-emerald-700 transition-colors duration-200">
+                          {repo.name}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-black/45">
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0 shadow-sm"
+                            style={{ backgroundColor: repo.color }}
+                          />
+                          {repo.language}
+                        </span>
+                      </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-black dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
-                      {truncate(cm.message.split("\n")[0], 80)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-black/45 dark:text-white/45 bg-black/4 dark:bg-white/5 border border-black/6 dark:border-white/6 rounded-md px-2 py-0.5">
-                        <GitBranch className="w-2.5 h-2.5" />
-                        {cm.repository.name}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-black/35 dark:text-white/35">
-                        <Clock className="w-2.5 h-2.5" />
-                        {timeAgo(cm.committedDate)}
-                      </span>
+                      {/* Description */}
+                      <p className="text-xs text-black/48 leading-[1.65] mb-3 line-clamp-2">
+                        {repo.description}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {repo.topics.map((t) => (
+                          <span
+                            key={t}
+                            className="text-[9px] font-semibold tracking-wide uppercase px-2 py-[3px] rounded-md bg-black/[0.035] border border-black/[0.06] text-black/40"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right meta */}
+                    <div className="shrink-0 flex flex-col items-end gap-2.5 pt-0.5">
+                      <ExternalLink className="w-3.5 h-3.5 text-black/18 group-hover:text-black/55 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+                      <div className="flex items-center gap-3 mt-auto">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-black/38">
+                          <Star className="w-3 h-3" />
+                          {loading ? "—" : (meta?.stars ?? 0)}
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-black/38">
+                          <GitFork className="w-3 h-3" />
+                          {loading ? "—" : (meta?.forks ?? 0)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Arrow */}
-                  <ArrowUpRight className="shrink-0 w-3.5 h-3.5 text-black/20 dark:text-white/20 group-hover:text-black/60 dark:group-hover:text-white/60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all mt-1" />
                 </motion.a>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
 
-        {/* ── Bottom chips ──────────────────────────── */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+        {/* ── BOTTOM STRIP ───────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.75, duration: 0.5 }}
+          className="flex items-center gap-4 overflow-x-auto scrollbar-none pt-2 border-t border-black/[0.06]"
+        >
           {[
             { icon: Activity, text: "Live contribution data" },
-            { icon: GitCommitHorizontal, text: "All repos included" },
-            { icon: Star, text: "Public activity" },
-          ].map(({ icon: Icon, text }) => (
-            <span
-              key={text}
-              className="shrink-0 inline-flex items-center gap-1.5 text-[10px] text-black/40 dark:text-white/40 font-medium"
-            >
+            { icon: Code2, text: "Open source" },
+            { icon: Flame, text: "Daily commits" },
+          ].map(({ icon: Icon, text }, i) => (
+            <span key={text} className="shrink-0 inline-flex items-center gap-1.5 text-[10px] font-medium text-black/33">
               <Icon className="w-3 h-3" />
               {text}
-              <span className="text-black/20 dark:text-white/20 last:hidden">·</span>
+              {i < 2 && <span className="text-black/15 ml-2">·</span>}
             </span>
           ))}
           <motion.a
             href={`https://github.com/${USERNAME}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto shrink-0 flex items-center gap-1 text-[10px] font-semibold text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors"
             whileHover={{ x: 2 }}
+            className="ml-auto shrink-0 flex items-center gap-1 text-[10px] font-bold text-black/40 hover:text-black transition-colors"
           >
-            Open GitHub
-            <ChevronRight className="w-3 h-3" />
+            Open GitHub <ChevronRight className="w-3 h-3" />
           </motion.a>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* ── Tooltip ──────────────────────────────────── */}
-      <AnimatePresence>
-        {hovered && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85 }}
-            transition={{ duration: 0.15 }}
-            className="fixed z-50 pointer-events-none"
-            style={{ left: hovered.x + 14, top: hovered.y - 40 }}
-          >
-            <div className="bg-black dark:bg-white text-white dark:text-black text-[10px] font-semibold px-2.5 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
-              {hovered.day.contributionCount} contribution{hovered.day.contributionCount !== 1 ? "s" : ""}
-              <span className="font-normal opacity-70 ml-1">on {hovered.day.date}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </section>
   );
 }

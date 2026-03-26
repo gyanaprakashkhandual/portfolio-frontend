@@ -2,7 +2,7 @@
 // Dynamically switches between development, staging, and production environments
 
 const getEnvironmentConfig = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://gyanaprakashkhandual.onrender.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000";
   const nodeEnv = process.env.NODE_ENV || "development";
 
   return {

@@ -6,7 +6,7 @@ import StoreProvider from "./context/Store.context";
 import { ContentProvider } from "./context/Content.context";
 import { ActionMenuProvider } from "./context/Action.menu.context";
 export const metadata: Metadata = {
-  title: "Portfolio - Gyana Prakash Khandual",
+  title: "Gyan's",
   description:
     "Personal portfolio showcasing projects, skills, and experience.",
 };

@@ -165,47 +165,6 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
     <aside className="w-72 shrink-0 flex flex-col h-full bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
       {/* ── Header ── */}
       <div className="px-4 pt-5 pb-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2 mb-3">
-          {viewMode === "docs" && (
-            <button
-              onClick={() => setViewMode("menu")}
-              className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-150"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-            </button>
-          )}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {viewMode === "docs" && techInfo ? (
-              <>
-                <span className="text-base">{techInfo.icon}</span>
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-                  {techInfo.label}
-                </span>
-              </>
-            ) : (
-              <>
-                <BookOpen
-                  className="w-4 h-4 text-gray-400 dark:text-gray-500"
-                  strokeWidth={1.8}
-                />
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                  Documentation
-                </span>
-              </>
-            )}
-          </div>
-          <button
-            onClick={() =>
-              setViewMode(
-                viewMode === "menu" ? (activeTech ? "docs" : "menu") : "menu",
-              )
-            }
-            className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-150"
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-        </div>
-
         {/* Search + Filter — only in docs mode */}
         {viewMode === "docs" && (
           <div className="flex items-center gap-2">
@@ -470,11 +429,37 @@ export default function DocSidebar({ techSlug }: DocSidebarProps) {
 
       {/* ── Footer ── */}
       <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-800">
-        <p className="text-[11px] text-gray-400 dark:text-gray-600 text-center">
-          {viewMode === "docs" && activeTech
-            ? `${totalDocs} document${totalDocs !== 1 ? "s" : ""} · ${techInfo?.label ?? ""}`
-            : `${docRegistry.length} technolog${docRegistry.length !== 1 ? "ies" : "y"} available`}
-        </p>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {viewMode === "docs" && techInfo ? (
+              <>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                  {techInfo.label}
+                </span>
+              </>
+            ) : (
+              <>
+                <BookOpen
+                  className="w-4 h-4 text-gray-400 dark:text-gray-500"
+                  strokeWidth={1.8}
+                />
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  Documentation
+                </span>
+              </>
+            )}
+          </div>
+          <button
+            onClick={() =>
+              setViewMode(
+                viewMode === "menu" ? (activeTech ? "docs" : "menu") : "menu",
+              )
+            }
+            className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors duration-150"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );

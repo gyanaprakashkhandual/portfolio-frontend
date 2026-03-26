@@ -4,9 +4,10 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Menu, X } from "lucide-react";
+import { Sun, Moon, Menu, X, ChevronDown, ArrowBigDown } from "lucide-react";
 import { FaCoffee } from "react-icons/fa";
 import { useTheme } from "../context/Theme.context";
+import { ArrowDropDown } from "@mui/icons-material";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -27,6 +28,16 @@ const NAV_LINKS: NavLink[] = [
   { label: "Contact", href: "/contact" },
 ];
 
+// ─── Products ─────────────────────────────────────────────────────────────────
+const PRODUCTS = [
+  { label: "Caffetest", href: "/products/caffetest" },
+  { label: "Fetch", href: "/products/fetch" },
+  { label: "Selenium - Cucumber", href: "/products/selenium-cucumber" },
+  { label: "Taar", href: "/products/taar" },
+  { label: "Caffetest-tracker", href: "/products/caffetest-tracker" },
+  { label: "Doodot", href: "/products/doodot" },
+];
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 export default function Navbar() {
   const router = useRouter();
@@ -37,6 +48,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
 
   // Scroll shadow
   useEffect(() => {
@@ -60,6 +72,22 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [themeOpen]);
+
+  // Close products menu when clicking outside
+  useEffect(() => {
+    if (!productsOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        !target.closest(".products-trigger") &&
+        !target.closest(".products-menu")
+      ) {
+        setProductsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [productsOpen]);
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -133,6 +161,69 @@ export default function Navbar() {
                   </motion.button>
                 );
               })}
+
+              {/* ── Products Dropdown ── */}
+              <div className="relative">
+                <motion.button
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * NAV_LINKS.length + 0.2, duration: 0.3 }}
+                  onClick={() => setProductsOpen((v) => !v)}
+                  className={`
+                    products-trigger
+                    relative flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors duration-150
+                    ${
+                      productsOpen
+                        ? "text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-800"
+                        : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800/60"
+                    }
+                  `}
+                >
+                  <span>Products</span>
+                  <motion.span
+                    animate={{ rotate: productsOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex"
+                  >
+                    <ArrowDropDown className="w-3.5 h-3.5 mt-1" strokeWidth={2} />
+                  </motion.span>
+                </motion.button>
+
+                <AnimatePresence>
+                  {productsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="products-menu absolute right-0 mt-2 w-52 rounded-lg bg-white dark:bg-neutral-900 shadow-lg shadow-black/10 dark:shadow-black/40 border border-neutral-200 dark:border-neutral-800 overflow-hidden z-60"
+                    >
+                      {PRODUCTS.map((product) => {
+                        const isActive = pathname === product.href;
+                        return (
+                          <button
+                            key={product.href}
+                            onClick={() => {
+                              navigate(product.href);
+                              setProductsOpen(false);
+                            }}
+                            className={`
+                              w-full px-4 py-2.5 text-left text-sm font-medium transition-colors
+                              ${
+                                isActive
+                                  ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/40 hover:text-neutral-900 dark:hover:text-white"
+                              }
+                            `}
+                          >
+                            {product.label}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
             {/* ── Right Actions ── */}
@@ -271,6 +362,63 @@ export default function Navbar() {
                     </motion.button>
                   );
                 })}
+
+                {/* ── Mobile Products Section ── */}
+                <motion.div
+                  initial={{ x: -12, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: NAV_LINKS.length * 0.04, duration: 0.22 }}
+                >
+                  <button
+                    onClick={() => setProductsOpen((v) => !v)}
+                    className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-between text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-white"
+                  >
+                    <span>Products</span>
+                    <motion.span
+                      animate={{ rotate: productsOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" strokeWidth={2} />
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence>
+                    {productsOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden pl-3"
+                      >
+                        {PRODUCTS.map((product) => {
+                          const isActive = pathname === product.href;
+                          return (
+                            <button
+                              key={product.href}
+                              onClick={() => {
+                                navigate(product.href);
+                                setMobileOpen(false);
+                                setProductsOpen(false);
+                              }}
+                              className={`
+                                w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                                ${
+                                  isActive
+                                    ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white"
+                                    : "text-neutral-500 dark:text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 hover:text-neutral-900 dark:hover:text-white"
+                                }
+                              `}
+                            >
+                              {product.label}
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               </div>
             </motion.div>
           )}
