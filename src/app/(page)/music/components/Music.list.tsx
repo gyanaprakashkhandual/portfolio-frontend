@@ -572,7 +572,7 @@ export default function MusicList() {
 
   return (
     <>
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
+      <div className="flex-1 flex flex-col h-full min-w-[50vw] max-w-[50vw] overflow-hidden bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
         {/* ── Top bar ── */}
         <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center gap-2">
           {/* Search */}

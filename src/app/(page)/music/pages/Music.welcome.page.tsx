@@ -45,7 +45,7 @@ export default function MusicWelcomePage() {
       className="
         relative flex flex-1 flex-col items-center justify-center overflow-hidden
         w-full bg-white dark:bg-gray-950
-        h-[calc(100vh-56px)] main-scrollbar
+        h-[calc(100vh-56px)] main-scrollbar min-w-[50vw] max-w-[50vw]
       "
     >
       {/* ── Subtle grid background ── */}
