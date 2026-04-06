@@ -4,11 +4,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Menu, X, ChevronDown, ArrowBigDown } from "lucide-react";
+import { Sun, Moon, Menu, X, ChevronDown } from "lucide-react";
 import { FaCoffee } from "react-icons/fa";
 import { useTheme } from "../context/Theme.context";
-import { ArrowDropDown } from "@mui/icons-material";
-
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface NavLink {
@@ -163,7 +161,7 @@ export default function Navbar() {
               })}
             </div>
 
-          {/* ── Right Actions ── */}
+            {/* ── Right Actions ── */}
             <div className="flex items-center gap-1">
               {/* Theme toggle */}
               {mounted && (
@@ -304,7 +302,10 @@ export default function Navbar() {
                 <motion.div
                   initial={{ x: -12, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: NAV_LINKS.length * 0.04, duration: 0.22 }}
+                  transition={{
+                    delay: NAV_LINKS.length * 0.04,
+                    duration: 0.22,
+                  }}
                 >
                   <button
                     onClick={() => setProductsOpen((v) => !v)}
