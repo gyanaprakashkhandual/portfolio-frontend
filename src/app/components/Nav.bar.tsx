@@ -8,13 +8,11 @@ import { Sun, Moon, Menu, X, ChevronDown } from "lucide-react";
 import { FaCoffee } from "react-icons/fa";
 import { useTheme } from "../context/Theme.context";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface NavLink {
   label: string;
   href: string;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
 const NAV_LINKS: NavLink[] = [
   { label: "Skills", href: "/skills" },
   { label: "Projects", href: "/projects" },
@@ -26,7 +24,6 @@ const NAV_LINKS: NavLink[] = [
   { label: "Contact", href: "/contact" },
 ];
 
-// ─── Products ─────────────────────────────────────────────────────────────────
 const PRODUCTS = [
   { label: "Caffetest", href: "/products/caffetest" },
   { label: "Fetch", href: "/products/fetch" },
@@ -36,7 +33,6 @@ const PRODUCTS = [
   { label: "Doodot", href: "/products/doodot" },
 ];
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -48,14 +44,12 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
 
-  // Scroll shadow
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Close theme menu when clicking outside
   useEffect(() => {
     if (!themeOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -71,7 +65,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [themeOpen]);
 
-  // Close products menu when clicking outside
   useEffect(() => {
     if (!productsOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -87,12 +80,17 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [productsOpen]);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  const navigate = (href: string) => router.push(href);
+  const navigate = (href: string) => {
+    if (href.startsWith("http")) {
+      window.open(href, "_blank");
+    } else {
+      router.push(href);
+    }
+  };
 
   return (
     <>
@@ -111,7 +109,6 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
-            {/* ── Logo ── */}
             <motion.button
               onClick={() => navigate("/")}
               className="flex items-center gap-2 shrink-0 group"
@@ -124,7 +121,6 @@ export default function Navbar() {
               </span>
             </motion.button>
 
-            {/* ── Desktop Nav Links ── */}
             <div className="hidden lg:flex items-center gap-0.5">
               {NAV_LINKS.map((link, i) => {
                 const isActive = pathname === link.href;
@@ -161,9 +157,7 @@ export default function Navbar() {
               })}
             </div>
 
-            {/* ── Right Actions ── */}
             <div className="flex items-center gap-1">
-              {/* Theme toggle */}
               {mounted && (
                 <div className="relative">
                   <motion.button
@@ -201,7 +195,6 @@ export default function Navbar() {
                     </AnimatePresence>
                   </motion.button>
 
-                  {/* Theme dropdown menu */}
                   <AnimatePresence>
                     {themeOpen && (
                       <motion.div
@@ -236,7 +229,6 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Mobile hamburger */}
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onClick={() => setMobileOpen((v) => !v)}
@@ -264,7 +256,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* ── Mobile Menu ── */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
@@ -298,7 +289,6 @@ export default function Navbar() {
                   );
                 })}
 
-                {/* ── Mobile Products Section ── */}
                 <motion.div
                   initial={{ x: -12, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -363,7 +353,6 @@ export default function Navbar() {
         </AnimatePresence>
       </motion.nav>
 
-      {/* Spacer so content doesn't hide under fixed navbar */}
       <div className="h-14" />
     </>
   );
