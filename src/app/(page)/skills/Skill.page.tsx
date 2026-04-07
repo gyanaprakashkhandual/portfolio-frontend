@@ -13,7 +13,7 @@ import {
   ChevronDown,
   Github,
 } from "lucide-react";
-import { useSkillsContext } from "../layout";
+import { useSkillsContext } from "./layout";
 
 type SortKey = "skillName" | "totalProjects" | "totalExperience";
 type SortDir = "asc" | "desc";
@@ -29,7 +29,9 @@ function ExperienceBadge({ exp }: { exp: string }) {
           ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
           : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700";
   return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border ${color}`}>
+    <span
+      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border ${color}`}
+    >
       <Clock className="w-2.5 h-2.5" strokeWidth={2} />
       {exp}
     </span>
@@ -47,7 +49,9 @@ function ProjectsBadge({ count }: { count: string }) {
           ? "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800"
           : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700";
   return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border ${color}`}>
+    <span
+      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md border ${color}`}
+    >
       <Briefcase className="w-2.5 h-2.5" strokeWidth={2} />
       {count}
     </span>
@@ -69,13 +73,32 @@ function SkeletonRow() {
   );
 }
 
-function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+function SortIcon({
+  col,
+  sortKey,
+  sortDir,
+}: {
+  col: SortKey;
+  sortKey: SortKey;
+  sortDir: SortDir;
+}) {
   if (col !== sortKey)
-    return <ChevronUp className="w-3 h-3 text-gray-300 dark:text-gray-700" strokeWidth={2} />;
+    return (
+      <ChevronUp
+        className="w-3 h-3 text-gray-300 dark:text-gray-700"
+        strokeWidth={2}
+      />
+    );
   return sortDir === "asc" ? (
-    <ChevronUp className="w-3 h-3 text-gray-900 dark:text-white" strokeWidth={2} />
+    <ChevronUp
+      className="w-3 h-3 text-gray-900 dark:text-white"
+      strokeWidth={2}
+    />
   ) : (
-    <ChevronDown className="w-3 h-3 text-gray-900 dark:text-white" strokeWidth={2} />
+    <ChevronDown
+      className="w-3 h-3 text-gray-900 dark:text-white"
+      strokeWidth={2}
+    />
   );
 }
 
@@ -102,8 +125,8 @@ export default function SkillsPage() {
   );
 
   const sorted = [...filtered].sort((a, b) => {
-    let va = (a as Record<string, string>)[sortKey] ?? "";
-    let vb = (b as Record<string, string>)[sortKey] ?? "";
+    let va = (a as unknown as Record<string, string>)[sortKey] ?? "";
+    let vb = (b as unknown as Record<string, string>)[sortKey] ?? "";
     if (sortKey !== "skillName") {
       va = String(parseInt(va));
       vb = String(parseInt(vb));
@@ -113,11 +136,15 @@ export default function SkillsPage() {
   });
 
   const labelParts = selectedKey.split("/");
-  const breadcrumb = labelParts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" / ");
+  const breadcrumb = labelParts
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" / ");
 
-  const thBase = "px-4 py-3 text-left cursor-pointer select-none transition-colors duration-150";
+  const thBase =
+    "px-4 py-3 text-left cursor-pointer select-none transition-colors duration-150";
   const thActive = "text-gray-900 dark:text-white";
-  const thInactive = "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200";
+  const thInactive =
+    "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200";
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
@@ -127,7 +154,9 @@ export default function SkillsPage() {
             <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-medium leading-none">
               Skills
             </p>
-            <span className="text-gray-300 dark:text-gray-600 leading-none">/</span>
+            <span className="text-gray-300 dark:text-gray-600 leading-none">
+              /
+            </span>
             <h1 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight leading-none">
               {breadcrumb}
             </h1>
@@ -144,7 +173,9 @@ export default function SkillsPage() {
               className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 leading-none"
             >
               <span className="leading-none">
-                <span className="font-bold text-gray-900 dark:text-white">{skills.length}</span>{" "}
+                <span className="font-bold text-gray-900 dark:text-white">
+                  {skills.length}
+                </span>{" "}
                 <span className="font-semibold">Skills</span>
               </span>
 
@@ -152,7 +183,9 @@ export default function SkillsPage() {
                 <>
                   <span className="w-px h-3 bg-gray-200 dark:bg-gray-700 self-center" />
                   <span className="leading-none">
-                    <span className="font-semibold text-gray-900 dark:text-white">{filtered.length}</span>{" "}
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {filtered.length}
+                    </span>{" "}
                     matched
                   </span>
                   <span className="w-px h-3 bg-gray-200 dark:bg-gray-700 self-center" />
@@ -209,10 +242,15 @@ export default function SkillsPage() {
         ) : skills.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 gap-4 p-8">
             <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-gray-400" strokeWidth={1.8} />
+              <AlertTriangle
+                className="w-5 h-5 text-gray-400"
+                strokeWidth={1.8}
+              />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No skills found</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                No skills found
+              </p>
               <p className="text-xs text-gray-400 dark:text-gray-600">
                 This category may be empty or unavailable.
               </p>
@@ -220,7 +258,10 @@ export default function SkillsPage() {
           </div>
         ) : sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Search className="w-8 h-8 text-gray-300 dark:text-gray-700" strokeWidth={1.5} />
+            <Search
+              className="w-8 h-8 text-gray-300 dark:text-gray-700"
+              strokeWidth={1.5}
+            />
             <p className="text-sm text-gray-400 dark:text-gray-600">
               No skills match &quot;{tableQuery}&quot;
             </p>
@@ -243,8 +284,14 @@ export default function SkillsPage() {
                         onClick={() => handleSort("skillName")}
                       >
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-bold uppercase tracking-widest">Skill</span>
-                          <SortIcon col="skillName" sortKey={sortKey} sortDir={sortDir} />
+                          <span className="text-[11px] font-bold uppercase tracking-widest">
+                            Skill
+                          </span>
+                          <SortIcon
+                            col="skillName"
+                            sortKey={sortKey}
+                            sortDir={sortDir}
+                          />
                         </div>
                       </th>
                       <th
@@ -252,8 +299,14 @@ export default function SkillsPage() {
                         onClick={() => handleSort("totalProjects")}
                       >
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-bold uppercase tracking-widest">Projects</span>
-                          <SortIcon col="totalProjects" sortKey={sortKey} sortDir={sortDir} />
+                          <span className="text-[11px] font-bold uppercase tracking-widest">
+                            Projects
+                          </span>
+                          <SortIcon
+                            col="totalProjects"
+                            sortKey={sortKey}
+                            sortDir={sortDir}
+                          />
                         </div>
                       </th>
                       <th
@@ -261,8 +314,14 @@ export default function SkillsPage() {
                         onClick={() => handleSort("totalExperience")}
                       >
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-bold uppercase tracking-widest">Experience</span>
-                          <SortIcon col="totalExperience" sortKey={sortKey} sortDir={sortDir} />
+                          <span className="text-[11px] font-bold uppercase tracking-widest">
+                            Experience
+                          </span>
+                          <SortIcon
+                            col="totalExperience"
+                            sortKey={sortKey}
+                            sortDir={sortDir}
+                          />
                         </div>
                       </th>
                       <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
@@ -334,7 +393,8 @@ export default function SkillsPage() {
               </div>
               <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
                 <p className="text-[11px] text-gray-400 dark:text-gray-600 text-center">
-                  Showing {sorted.length} of {skills.length} skill{skills.length !== 1 ? "s" : ""}
+                  Showing {sorted.length} of {skills.length} skill
+                  {skills.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
