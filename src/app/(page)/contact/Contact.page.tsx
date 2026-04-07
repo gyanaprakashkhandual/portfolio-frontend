@@ -22,13 +22,13 @@ import {
   X,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/lib/hooks";
-import { sendContactMessage } from "../../../lib/features/contact/contact.slice";
+import { sendContactMessage } from "@/app/lib/features/contact/contact.slice";
 import {
   selectContactLoading,
   selectContactSuccess,
   selectContactError,
-} from "../../../lib/features/contact/contact.selector";
-import { clearContactState } from "../../../lib/features/contact/contact.slice";
+} from "@/app/lib/features/contact/contact.selector";
+import { clearContactState } from "@/app/lib/features/contact/contact.slice";
 
 interface FormData {
   name: string;
