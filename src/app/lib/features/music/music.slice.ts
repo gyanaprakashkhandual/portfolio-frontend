@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { IMusic, ApiResponse } from "../../types";
 
-const BASE = "https://gyanaprakashkhandual.onrender.com0/api/music";
+const BASE = "https://gyanaprakashkhandual.onrender.com/api/music";
 
 interface MusicState {
   tracks: IMusic[];
