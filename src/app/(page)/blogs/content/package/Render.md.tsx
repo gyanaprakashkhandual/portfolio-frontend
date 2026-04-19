@@ -348,14 +348,7 @@ npm run dev`;
 export default function ShowMarkdownPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
-        .font-display { font-family: 'Instrument Serif', serif; }
-        .font-body { font-family: 'Outfit', sans-serif; }
-        .font-code { font-family: 'DM Mono', monospace; }
-      `}</style>
-
-      <div className="font-body max-w-3xl mx-auto px-5 pb-28">
+      <div className="font-body max-w-5xl mx-auto px-5 pb-1">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -369,7 +362,7 @@ export default function ShowMarkdownPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-xs font-code text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 rounded-full hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
             >
-              <Package size={11} /> showmarkdown
+              <Package size={11} /> Show Markdown
             </a>
             <a
               href="https://github.com/gyanaprakashkhandual/markdown"

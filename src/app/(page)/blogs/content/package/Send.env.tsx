@@ -270,7 +270,7 @@ const securityPoints = [
 export default function SendenvDocs() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-black dark:text-white">
-      <div className="max-w-3xl mx-auto px-5 pb-24">
+      <div className="max-w-5xl mx-auto px-5 pb-1">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
@@ -283,7 +283,7 @@ export default function SendenvDocs() {
             <Badge>No dependencies</Badge>
           </div>
           <h1 className="text-5xl font-bold tracking-tight leading-[1.05] mb-5">
-            sendenv
+            Send ENV
           </h1>
           <p className="text-xl text-zinc-500 dark:text-zinc-400 leading-relaxed mb-8 max-w-xl">
             Encrypt your{" "}
