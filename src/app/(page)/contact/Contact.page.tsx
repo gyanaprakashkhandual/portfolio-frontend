@@ -316,7 +316,7 @@ export default function ContactPage() {
                         Gyana Prakash Khandual
                       </p>
                       <p className="text-[16px] text-gray-500 dark:text-gray-500 mt-1 font-semibold">
-                        Full Stack Developer
+                        Software Engineer
                       </p>
                     </div>
                   </div>
